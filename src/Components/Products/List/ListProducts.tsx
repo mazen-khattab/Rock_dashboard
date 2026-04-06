@@ -1,35 +1,8 @@
 import { useState } from 'react';
-import { Home, CreditCard as Edit, Trash2, ChevronRight, ChevronsLeft, ChevronLeft, ChevronsRight } from 'lucide-react';
+import { CreditCard as Edit, Trash2, ChevronRight, ChevronsLeft, ChevronLeft, ChevronsRight } from 'lucide-react';
 import "./ListProducts.css";
 import { Link } from 'react-router-dom';
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  sizes: string[];
-  status: string;
-  image_url?: string;
-}
-
-const MOCK_PRODUCTS: Product[] = [
-  { id: '1', name: 'Classic White T-Shirt', category: 'Tops', price: 29.99, sizes: ['XS', 'S', 'M', 'L', 'XL'], status: 'Active' },
-  { id: '2', name: 'Slim Fit Jeans', category: 'Bottoms', price: 59.99, sizes: ['S', 'M', 'L', 'XL', 'XXL'], status: 'Active' },
-  { id: '3', name: 'Summer Floral Dress', category: 'Dresses', price: 79.99, sizes: ['XS', 'S', 'M', 'L'], status: 'Active' },
-  { id: '4', name: 'Leather Jacket', category: 'Outerwear', price: 149.99, sizes: ['S', 'M', 'L', 'XL'], status: 'Active' },
-  { id: '5', name: 'Gold Chain Necklace', category: 'Accessories', price: 34.99, sizes: ['XS'], status: 'Active' },
-  { id: '6', name: 'Striped Long Sleeve Shirt', category: 'Tops', price: 44.99, sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], status: 'Active' },
-  { id: '7', name: 'Cargo Pants', category: 'Bottoms', price: 69.99, sizes: ['S', 'M', 'L', 'XL'], status: 'Draft' },
-  { id: '8', name: 'Evening Gown', category: 'Dresses', price: 199.99, sizes: ['XS', 'S', 'M', 'L'], status: 'Active' },
-  { id: '9', name: 'Winter Wool Coat', category: 'Outerwear', price: 189.99, sizes: ['S', 'M', 'L', 'XL', 'XXL'], status: 'Active' },
-  { id: '10', name: 'Silk Scarf', category: 'Accessories', price: 49.99, sizes: ['XS'], status: 'Active' },
-  { id: '11', name: 'Casual Polo Shirt', category: 'Tops', price: 39.99, sizes: ['S', 'M', 'L', 'XL'], status: 'Active' },
-  { id: '12', name: 'Denim Skirt', category: 'Bottoms', price: 54.99, sizes: ['XS', 'S', 'M', 'L'], status: 'Active' },
-  { id: '13', name: 'Cocktail Dress', category: 'Dresses', price: 129.99, sizes: ['XS', 'S', 'M', 'L', 'XL'], status: 'Active' },
-  { id: '14', name: 'Bomber Jacket', category: 'Outerwear', price: 119.99, sizes: ['M', 'L', 'XL'], status: 'Draft' },
-  { id: '15', name: 'Leather Belt', category: 'Accessories', price: 29.99, sizes: ['S', 'M', 'L'], status: 'Active' },
-];
+import { MOCK_PRODUCTS, type Product } from "../../../Types/Product";
 
 export const ListProducts = () => {
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
@@ -50,8 +23,7 @@ export const ListProducts = () => {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-slate-900">Products</h1>
         <Link to={'create'} className="flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-white transition-colors hover:bg-(--hover-color)">
-          <span className="text-xl">+</span>
-          <span>Create</span>
+          <span>New Product</span>
         </Link>
       </div>
 
@@ -124,9 +96,13 @@ export const ListProducts = () => {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <button className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer">
+                    <Link
+                      to={`edit/${product.id}`}
+                      state={{ product }}
+                      className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer"
+                    >
                       <Edit size={16} />
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleDelete(product.id)}
                       className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 cursor-pointer"

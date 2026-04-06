@@ -16,10 +16,10 @@ export const Sidebar = () => {
     return (
         <div className="flex min-h-screen bg-slate-100">
             <aside className="w-65 bg-white px-3 py-8 shadow-[1px_0_15px_-8px_#00000066]">
-                <div className="mb-12 flex items-center gap-3">
+                <NavLink to="/admin" className="mb-12 flex items-center gap-3">
                     <img src={logo} alt="Rock logo" className="w-15 rounded-[10px]" />
                     <span className="text-2xl font-extrabold text-slate-800">Rock</span>
-                </div>
+                </NavLink>
 
                 <nav className="flex flex-col gap-2">
                     {menuItems.map((item, index) => {

@@ -3,6 +3,8 @@ import { Sidebar } from "./Components/Sidebar/Sidebar";
 import { Overview } from "./Components/Overview/Overview";
 import { ListProducts } from "./Components/Products";
 import { CreateProduct } from "./Components/Products";
+import { EditProduct } from "./Components/Products";
+import { ListOrders, ShowOrder } from "./Components/Orders";
 import "./App.css";
 
 function AdminLayout() {
@@ -28,6 +30,11 @@ function App() {
           {/* products */}
           <Route path="products" element={<ListProducts />} />
           <Route path="products/create" element={<CreateProduct />} />
+          <Route path="products/edit/:productId" element={<EditProduct />} />
+
+          {/* orders */}
+          <Route path="orders" element={<ListOrders />} />
+          <Route path="orders/:orderId" element={<ShowOrder />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/admin" replace />} />
