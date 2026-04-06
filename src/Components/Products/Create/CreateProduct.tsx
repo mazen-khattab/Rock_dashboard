@@ -5,9 +5,12 @@ import {
   List,
   ListOrdered,
   Pilcrow,
-  Save,
   Type,
+  Plus,
+  ArrowLeft
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
 
 const languageOptions = [
   { label: "Arabic", value: "ar" },
@@ -21,6 +24,7 @@ const categoryOptions = [
   { label: "Earrings", value: "earrings" },
 ];
 
+// text editor buttons 
 const toolbarButtons = [
   { label: "Bold", icon: Bold, command: "bold" },
   { label: "Italic", icon: Italic, command: "italic" },
@@ -46,9 +50,8 @@ export const CreateProduct = () => {
 
   const editorRef = useRef<HTMLDivElement>(null);
 
-  const handleInputChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
-  ) => {
+  // used to handle changing in input value
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setFormData((current) => ({
       ...current,
@@ -56,6 +59,7 @@ export const CreateProduct = () => {
     }));
   };
 
+  // used in text editor to apply the style on the editor value 
   const applyEditorCommand = (command: string, value?: string) => {
     editorRef.current?.focus();
     document.execCommand(command, false, value);
@@ -65,6 +69,7 @@ export const CreateProduct = () => {
     }));
   };
 
+  // used to handle changing in editor value
   const handleDescriptionChange = () => {
     setFormData((current) => ({
       ...current,
@@ -81,8 +86,16 @@ export const CreateProduct = () => {
     <div className="min-h-screen">
       <div className="mx-auto max-w-6xl p-6 shadow-sm ring-1 ring-slate-200/70">
 
+        {/* header */}
         <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
-          <div>
+          <div className="space-y-3">
+            <Link
+              to="/admin/products"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+            >
+              <ArrowLeft size={16} />
+              Back to products
+            </Link>
             <h1 className="text-3xl font-bold tracking-tight text-slate-950">Create Product</h1>
           </div>
 
@@ -90,11 +103,12 @@ export const CreateProduct = () => {
             type="submit"
             form="create-product-form"
             className="inline-flex items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) cursor-pointer">
-            <Save size={16} />
+            <Plus size={16} />
             Create
           </button>
         </div>
 
+        {/* form inputs */}
         <form id="create-product-form" onSubmit={handleSubmit} className="space-y-8">
           <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-6">
@@ -177,7 +191,7 @@ export const CreateProduct = () => {
                       placeholder="0.00"
                       min="0"
                       step="0.01"
-                      className="w-full bg-transparent px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 bg-white"
+                      className="w-full px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 bg-white"
                     />
                   </div>
                 </label>

@@ -1,4 +1,4 @@
-import { DollarSign, Users, ShoppingCart, TrendingUp } from 'lucide-react';
+import { DollarSign, Users, ShoppingCart } from 'lucide-react';
 import StatsCard from './StatsCard';
 
 export const Overview = () => {
