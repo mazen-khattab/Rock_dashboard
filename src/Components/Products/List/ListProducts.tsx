@@ -1,8 +1,26 @@
 import { useState } from 'react';
-import { CreditCard as Edit, Trash2, ChevronRight, ChevronsLeft, ChevronLeft, ChevronsRight } from 'lucide-react';
+import { Edit, Trash2, ChevronRight, ChevronsLeft, ChevronLeft, ChevronsRight } from 'lucide-react';
 import "./ListProducts.css";
 import { Link } from 'react-router-dom';
 import { MOCK_PRODUCTS, type Product } from "../../../Types/Product";
+
+// const getStockLevel = (quantity: number): StockLevel => {
+//   if (quantity === 0) {
+//     return 'Out of Stock';
+//   }
+
+//   if (quantity < 5) {
+//     return 'Low Stock';
+//   }
+
+//   return 'In Stock';
+// };
+
+// const stockLevelClassName: Record<StockLevel, string> = {
+//   'In Stock': 'border-emerald-200 bg-emerald-50 text-emerald-700',
+//   'Low Stock': 'border-amber-200 bg-amber-50 text-amber-700',
+//   'Out of Stock': 'border-rose-200 bg-rose-50 text-rose-700',
+// };
 
 export const ListProducts = () => {
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
@@ -27,92 +45,143 @@ export const ListProducts = () => {
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white overflow-x-auto">
-        <table className="w-full table-auto">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+        <table className="min-w-max w-full table-auto">
           <thead className="border-b border-slate-200 bg-slate-50 text-slate-700">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">Image</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Image
+                </div>
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   Name
                 </div>
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   Category
                 </div>
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
+              {/* <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Slug
+                </div>
+              </th> */}
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Quantity
+                </div>
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Reserved
+                </div>
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Available
+                </div>
+              </th>
+              {/* <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Stock Level
+                </div>
+              </th> */}
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   Price
                 </div>
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Sizes</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Sizes
+                </div>
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   Status
                 </div>
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  Actions
+                </div>
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            {currentProducts.map((product) => (
-              <tr key={product.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
-                <td className="px-4 py-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-500">
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="h-full w-full rounded object-cover" />
-                    ) : (
-                      '48 x 48'
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-3 font-medium text-slate-800">{product.name}</td>
-                <td className="px-4 py-3 text-slate-500">{product.category}</td>
-                <td className="px-4 py-3 text-slate-700">${product.price.toFixed(2)}</td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {product.sizes.map((size) => (
-                      <span
-                        key={size}
-                        className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-700"
+            {currentProducts.map((product) => {
+              const availableToSell = Math.max(0, product.currentPhysicalQuantity - product.reservedQuantity);
+              // const stockLevel = getStockLevel(product.currentPhysicalQuantity);
+
+              return (
+                <tr key={product.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
+                  <td className="px-4 py-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-500">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="h-full w-full rounded object-cover" />
+                      ) : (
+                        '48 x 48'
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">{product.name}</td>
+                  <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{product.category}</td>
+                  {/* <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.sku}</td> */}
+                  <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.currentPhysicalQuantity}</td>
+                  <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.reservedQuantity}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-900 whitespace-nowrap">{availableToSell}</td>
+                  {/* <td className="px-4 py-3 whitespace-nowrap">
+                    <span className={`rounded border px-3 py-1 text-xs ${stockLevelClassName[stockLevel]}`}>
+                      {stockLevel}
+                    </span>
+                  </td> */}
+                  <td className="px-4 py-3 text-slate-700 whitespace-nowrap">${product.price.toFixed(2)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {product.sizes.map((size) => (
+                        <span
+                          key={size}
+                          className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-700"
+                        >
+                          {size}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded border px-3 py-1 text-xs ${product.status === 'Active'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : 'border-amber-200 bg-amber-50 text-amber-700'
+                        }`}
+                    >
+                      {product.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <Link
+                        to={`edit/${product.id}`}
+                        state={{ product }}
+                        className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer"
                       >
-                        {size}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded border px-3 py-1 text-xs ${product.status === 'Active'
-                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                      : 'border-amber-200 bg-amber-50 text-amber-700'
-                      }`}
-                  >
-                    {product.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
-                    <Link
-                      to={`edit/${product.id}`}
-                      state={{ product }}
-                      className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer"
-                    >
-                      <Edit size={16} />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 cursor-pointer"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                        <Edit size={16} />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 cursor-pointer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -1,13 +1,5 @@
-import { ArrowDownRight, ArrowUpRight, type LucideIcon } from 'lucide-react';
-
-interface StatsCardProps {
-  title: string;
-  value: string;
-  change: number;
-  icon: LucideIcon;
-  iconColor: string;
-  iconBg: string;
-}
+import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import type { StatsCardProps } from '../../Types/Overview';
 
 export default function StatsCard({ title, value, change, icon: Icon, iconColor, iconBg }: StatsCardProps) {
   const isPositive = change >= 0;

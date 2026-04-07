@@ -5,6 +5,12 @@ import { ListProducts } from "./Components/Products";
 import { CreateProduct } from "./Components/Products";
 import { EditProduct } from "./Components/Products";
 import { ListOrders, ShowOrder } from "./Components/Orders";
+import {
+  CreateStockManagement,
+  EditStockManagement,
+  ListStockManagement,
+  ShowStockManagement,
+} from "./Components/StockManagement";
 import "./App.css";
 
 function AdminLayout() {
@@ -35,6 +41,12 @@ function App() {
           {/* orders */}
           <Route path="orders" element={<ListOrders />} />
           <Route path="orders/:orderId" element={<ShowOrder />} />
+
+          {/* stock management */}
+          <Route path="stock-management" element={<ListStockManagement />} />
+          <Route path="stock-management/create" element={<CreateStockManagement />} />
+          <Route path="stock-management/edit/:variantId" element={<EditStockManagement />} />
+          <Route path="stock-management/show/:variantId" element={<ShowStockManagement />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/admin" replace />} />
