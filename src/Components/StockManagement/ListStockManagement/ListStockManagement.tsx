@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
-import { STOCK_VARIANTS } from "../../../Types/Stock";
+import { MOCK_STOCK_TRANSACTIONS, STOCK_VARIANTS } from "../../../Types/Stock";
 
 export const ListStockManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -114,16 +114,18 @@ export const ListStockManagement = () => {
 
           <tbody>
             {currentVariants.map((variant) => {
+              const transaction = MOCK_STOCK_TRANSACTIONS.find((item) => item.id === variant.id);
+
               return (
                 <tr key={variant.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium text-slate-800">{variant.productName}</td>
                   <td className="px-4 py-3 font-medium text-slate-800">{variant.quantity}</td>
                   <td className="px-4 py-3 font-medium text-slate-800">{new Date().toLocaleDateString()}</td>
-                  <td className="px-4 py-3 font-medium text-slate-800">Returned</td>
+                  <td className="px-4 py-3 font-medium text-slate-800">{variant.transactiounType}</td>
                   <td className="px-4 py-3">
                     <Link
-                      to={`show/${variant.id}`}
-                      state={{ variant }}
+                      to={`edit/${variant.id}`}
+                      state={{ transaction }}
                       className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-200"
                     >
                       <Edit size={16} />
