@@ -18,7 +18,7 @@ const createEmptyRow = (): VariantRow => ({
   id: crypto.randomUUID(),
   size: "",
   color: "",
-  quantity: "",
+  quantity: 0,
 });
 
 /**
@@ -79,11 +79,6 @@ export const CreateStockManagement = () => {
     !hasValidVariantRow ||
     (isPriceVisible && (!price || Number(price) < 0));
 
-  // Remove all added variant rows when the product changes 
-  useEffect(() => {
-    setVariantRows([createEmptyRow()]);
-  }, [selectedProduct]);
-
   // Remove the entered price when the type changes to "Updating"
   useEffect(() => {
     if (!isPriceVisible) {
@@ -109,6 +104,7 @@ export const CreateStockManagement = () => {
   // Sets the selected product, updates search text, and closes the dropdown menu.
   const handleSelectProduct = (product: InventoryProduct) => {
     setSelectedProductId(product.id);
+    setVariantRows([createEmptyRow()]);
     setProductSearch(product.name);
     setIsProductMenuOpen(false);
     setErrorMessage("");
@@ -178,6 +174,7 @@ export const CreateStockManagement = () => {
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-6xl p-6 shadow-sm ring-1 ring-slate-200/70">
+        {/* Header */}
         <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
             <Link
@@ -203,8 +200,10 @@ export const CreateStockManagement = () => {
           </button>
         </div>
 
+        {/* Form body */}
         <form id="create-stock-transaction-form" onSubmit={handleSubmit} className="space-y-8">
           <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+            {/* Transaction Details */}
             <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-6">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">Transaction Details</h2>
@@ -404,6 +403,7 @@ export const CreateStockManagement = () => {
               </div>
             </div>
 
+            {/* Transaction Summary */}
             <div className="space-y-6">
               <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex items-start gap-3">
