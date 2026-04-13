@@ -52,14 +52,26 @@ export const ListOrders = () => {
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-slate-500">{order.createdAt}</td>
                 <td className="px-4 py-3">
-                  <Link
+                  {/* <Link
                     to={`${order.id}`}
                     state={{ order }}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-200"
+                    className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer"
+                    aria-label={`Show order ${order.number}`}
+                    title="Show"
                   >
                     <Eye size={16} />
-                    <span>Details</span>
-                  </Link>
+                  </Link> */}
+                  <div className="flex gap-2">
+                    <Link
+                      to={`${order.id}`}
+                      state={{ order }}
+                      className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer"
+                      aria-label={`Show order ${order.number}`}
+                      title="Show"
+                    >
+                      <Eye size={16} />
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}
