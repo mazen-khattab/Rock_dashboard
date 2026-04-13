@@ -10,7 +10,7 @@ export const Sidebar = () => {
         { name: "Stock Management", link: "/admin/stock-management", icon: <i className="fa-solid fa-warehouse" /> },
         { name: "Customer", link: "/admin/customers", icon: <i className="fa-solid fa-people-group" /> },
         { name: "Users", link: "/admin/users", icon: <i className="fa-solid fa-users" /> },
-        { name: "Settings", link: "/admin/settings", icon: <i className="fa-solid fa-gear" /> },
+        // { name: "Settings", link: "/admin/settings", icon: <i className="fa-solid fa-gear" /> },
     ];
 
     return (

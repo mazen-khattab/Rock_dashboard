@@ -31,7 +31,7 @@ export const Overview = () => {
 
     return (
         <section className="min-h-screen">
-            <div className="mx-auto max-w-7xl">
+             <div /*className="mx-auto max-w-7xl"*/> 
                 {/* <div className="mb-8 rounded-[28px] border border-slate-200 bg-gradient-to-br from-white via-white to-teal-50 p-8 shadow-sm">
                     <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-2xl">

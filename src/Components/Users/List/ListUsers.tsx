@@ -1,24 +1,30 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye } from "lucide-react";
-import { Link } from "react-router-dom";
-import "./ListCustomers.css";
-import { MOCK_CUSTOMERS, type Customer } from "../../../Types/Customer";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import "./ListUsers.css";
+import { MOCK_ADMIN_USERS, type AdminUser } from "../../../Types/User";
 
-export const ListCustomers = () => {
-  const [customers] = useState<Customer[]>(MOCK_CUSTOMERS);
+const roleClassName: Record<AdminUser["role"], string> = {
+  "Super Admin": "border-emerald-200 bg-emerald-50 text-emerald-700",
+  Admin: "border-sky-200 bg-sky-50 text-sky-700",
+  Support: "border-amber-200 bg-amber-50 text-amber-700",
+};
+
+export const ListUsers = () => {
+  const [users] = useState<AdminUser[]>(MOCK_ADMIN_USERS);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const totalRows = customers.length;
+  const totalRows = users.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
   const from = (currentPage - 1) * rowsPerPage;
-  const currentCustomers = customers.slice(from, from + rowsPerPage);
+  const currentUsers = users.slice(from, from + rowsPerPage);
 
   return (
     <div className="min-h-screen rounded-3xl p-6 text-slate-800 shadow-sm">
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Customers</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Users</h1>
+          <p className="mt-2 text-sm text-slate-500">All admin users with their account role and contact email.</p>
         </div>
       </div>
 
@@ -29,34 +35,20 @@ export const ListCustomers = () => {
               <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">First Name</th>
               <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">Last Name</th>
               <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">Email</th>
-              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">Phone</th>
-              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">Governorate</th>
-              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">City</th>
-              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">Role</th>
             </tr>
           </thead>
 
           <tbody>
-            {currentCustomers.map((customer) => (
-              <tr key={customer.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
-                <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">{customer.firstName}</td>
-                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{customer.lastName}</td>
-                <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{customer.email}</td>
-                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{customer.phone}</td>
-                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{customer.governorate}</td>
-                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{customer.city}</td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
-                    <Link
-                      to={`show/${customer.id}`}
-                      state={{ customer }}
-                      className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 cursor-pointer"
-                      aria-label={`Show ${customer.firstName} ${customer.lastName}`}
-                      title="Show"
-                    >
-                      <Eye size={16} />
-                    </Link>
-                  </div>
+            {currentUsers.map((user) => (
+              <tr key={user.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
+                <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">{user.firstName}</td>
+                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{user.lastName}</td>
+                <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{user.email}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span className={`rounded border px-3 py-1 text-xs ${roleClassName[user.role]}`}>
+                    {user.role}
+                  </span>
                 </td>
               </tr>
             ))}

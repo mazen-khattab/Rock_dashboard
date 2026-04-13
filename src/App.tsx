@@ -5,6 +5,8 @@ import { ListProducts } from "./Components/Products";
 import { CreateProduct } from "./Components/Products";
 import { EditProduct } from "./Components/Products";
 import { ListOrders, ShowOrder } from "./Components/Orders";
+import { CreateCustomer, EditCustomer, ListCustomers, ShowCustomer } from "./Components/Customers";
+import { ListUsers } from "./Components/Users";
 import {
   CreateStockManagement,
   EditStockManagement,
@@ -41,6 +43,15 @@ function App() {
           {/* orders */}
           <Route path="orders" element={<ListOrders />} />
           <Route path="orders/:orderId" element={<ShowOrder />} />
+
+          {/* customers */}
+          <Route path="customers" element={<ListCustomers />} />
+          <Route path="customers/create" element={<CreateCustomer />} />
+          <Route path="customers/edit/:customerId" element={<EditCustomer />} />
+          <Route path="customers/show/:customerId" element={<ShowCustomer />} />
+
+          {/* users */}
+          <Route path="users" element={<ListUsers />} />
 
           {/* stock management */}
           <Route path="stock-management" element={<ListStockManagement />} />
