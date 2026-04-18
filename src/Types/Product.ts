@@ -11,6 +11,34 @@ export interface Product {
   image_url?: string;
 }
 
+export type VariantImage = {
+  id: string;
+  file: File | null;
+  sortOrder: string;
+};
+
+export type ProductVariant = {
+  id: string;
+  size: string;
+  color: string;
+  quantity: string;
+  images: VariantImage[];
+};
+
+export type ProductFormData = {
+  nameAr: string;
+  nameEn: string;
+  language: string;
+  category: string;
+  description: string;
+  slug: string;
+  metaTitle: string;
+  metaDescription: string;
+  price: string;
+  isActive: boolean;
+  variants: ProductVariant[];
+};
+
 export const MOCK_PRODUCTS: Product[] = [
   { id: "1", name: "Classic White T-Shirt", category: "Tops", sku: "TS-WHT-M-001", price: 29.99, sizes: ["XS", "S", "M", "L", "XL"], currentPhysicalQuantity: 24, reservedQuantity: 4, status: "Active" },
   { id: "2", name: "Slim Fit Jeans", category: "Bottoms", sku: "JN-BLU-32-003", price: 59.99, sizes: ["S", "M", "L", "XL", "XXL"], currentPhysicalQuantity: 0, reservedQuantity: 0, status: "Active" },
