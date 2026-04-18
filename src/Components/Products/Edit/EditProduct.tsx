@@ -3,15 +3,18 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Bold,
+  ImagePlus,
   Italic,
   List,
   ListOrdered,
   Pilcrow,
+  Plus,
   Save,
+  Trash2,
   Type,
 } from "lucide-react";
 
-import { MOCK_PRODUCTS, type Product } from "../../../Types/Product";
+import { MOCK_PRODUCTS, type Product, type ProductFormData, type ProductVariant, type VariantImage } from "../../../Types/Product";
 
 const languageOptions = [
   { label: "Arabic", value: "ar" },
@@ -25,6 +28,23 @@ const categoryOptions = [
   { label: "Outerwear", value: "outerwear" },
   { label: "Accessories", value: "accessories" },
 ];
+
+const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
+const colorOptions = ["Gold", "Silver", "Rose Gold", "Black", "White", "Green", "Blue", "Red"];
+
+const createEmptyVariantImage = (): VariantImage => ({
+  id: crypto.randomUUID(),
+  file: null,
+  sortOrder: "",
+});
+
+const createEmptyVariant = (): ProductVariant => ({
+  id: crypto.randomUUID(),
+  size: "",
+  color: "",
+  quantity: "",
+  images: [createEmptyVariantImage()],
+});
 
 const toolbarButtons = [
   { label: "Bold", icon: Bold, command: "bold" },
@@ -43,7 +63,7 @@ const generateSlug = (name: string): string =>
     .replace(/^-|-$/g, "");
 
 // this will return the intial values for form data inputs
-const buildInitialFormData = (product: Product) => {
+const buildInitialFormData = (product: Product): ProductFormData => {
   const { name, category, sizes, price, status } = product;
 
   return {
@@ -57,6 +77,7 @@ const buildInitialFormData = (product: Product) => {
     metaDescription: `${name} from the ${category} category at Rock.`,
     price: price.toFixed(2),
     isActive: status === "Active",
+    variants: [createEmptyVariant()],
   };
 };
 
@@ -71,13 +92,15 @@ export const EditProduct = () => {
     return stateProduct ?? MOCK_PRODUCTS.find((p) => p.id === productId);
   }, [productId, state]);
 
+  // Text editor.
   const editorRef = useRef<HTMLDivElement>(null);
 
   // set intial form data
-  const [formData, setFormData] = useState(() =>
+  const [formData, setFormData] = useState<ProductFormData | null>(() =>
     product ? buildInitialFormData(product) : null,
   );
 
+  // Synchronizes form data and the text editor's content whenever the product changes.
   useEffect(() => {
     if (!product) {
       return;
@@ -91,6 +114,7 @@ export const EditProduct = () => {
     }
   }, [product]);
 
+  // used to handle changing in input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setFormData((current) =>
@@ -103,6 +127,7 @@ export const EditProduct = () => {
     );
   };
 
+  // used in text editor to apply the style on the editor value
   const applyEditorCommand = (command: string, value?: string) => {
     editorRef.current?.focus();
     document.execCommand(command, false, value);
@@ -116,6 +141,7 @@ export const EditProduct = () => {
     );
   };
 
+  // used to handle changing in editor value
   const handleDescriptionChange = () => {
     setFormData((current) =>
       current
@@ -127,14 +153,162 @@ export const EditProduct = () => {
     );
   };
 
+  // used to handle changing in variants values (size, color, quantity, and image)
+  const handleVariantChange = (variantId: string, key: keyof Omit<ProductVariant, "id" | "images">, value: string) => {
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          variants: current.variants.map((variant) =>
+            variant.id === variantId ? { ...variant, [key]: value } : variant,
+          ),
+        }
+        : current,
+    );
+  };
+
+  // used to add a new empty variant.
+  const handleAddVariant = () => {
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          variants: [...current.variants, createEmptyVariant()],
+        }
+        : current,
+    );
+  };
+
+  // used to remove the variant by id.
+  const handleRemoveVariant = (variantId: string) => {
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          variants: current.variants.length === 1
+            ? [createEmptyVariant()]
+            : current.variants.filter((variant) => variant.id !== variantId),
+        }
+        : current,
+    );
+  };
+
+  // used to add a new variant image
+  const handleAddVariantImage = (variantId: string) => {
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          variants: current.variants.map((variant) => variant.id === variantId
+            ? { ...variant, images: [...variant.images, createEmptyVariantImage()] }
+            : variant,
+          ),
+        }
+        : current,
+    );
+  };
+
+  // used to remove variant image by variant id
+  const handleRemoveVariantImage = (variantId: string, imageId: string) => {
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          variants: current.variants.map((variant) => {
+            if (variant.id !== variantId) {
+              return variant;
+            }
+
+            return {
+              ...variant,
+              images:
+                variant.images.length === 1
+                  ? [createEmptyVariantImage()]
+                  : variant.images.filter((image) => image.id !== imageId),
+            };
+          }),
+        }
+        : current,
+    );
+  };
+
+  // used to handle change in the variant image file value.
+  const handleVariantImageFileChange = (variantId: string, imageId: string, event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          variants: current.variants.map((variant) => {
+            if (variant.id !== variantId) {
+              return variant;
+            }
+
+            return {
+              ...variant,
+              images: variant.images.map((image) =>
+                image.id === imageId ? { ...image, file } : image,
+              ),
+            };
+          }),
+        }
+        : current,
+    );
+  };
+
+  // used to handle change in all fields except file in the variant image.
+  const handleVariantImageFieldsChange = (variantId: string, imageId: string, field: keyof VariantImage, value: any) => {
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          variants: current.variants.map((variant) =>
+            variant.id === variantId
+              ? {
+                ...variant,
+                images: variant.images.map((img) =>
+                  img.id === imageId ? { ...img, [field]: value } : img,
+                ),
+              }
+              : variant,
+          ),
+        }
+        : current,
+    );
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Edit product payload:", { productId, ...formData });
+
+    if (!formData) {
+      return;
+    }
+
+    const payload = {
+      productId,
+      ...formData,
+      variants: formData.variants.map((variant) => ({
+        size: variant.size,
+        color: variant.color,
+        quantity: Number(variant.quantity || 0),
+        images: variant.images
+          .filter((image) => image.file)
+          .map((image) => ({
+            name: image.file?.name ?? "",
+            sortOrder: Number(image.sortOrder || 0),
+          })),
+      })),
+    };
+
+    console.log("Edit product payload:", payload);
   };
 
   if (!product || !formData) {
     return <Navigate to="/admin/products" replace />;
   }
+
+  const totalVariantImages = formData.variants.reduce((total, variant) => total + variant.images.length, 0);
 
   return (
     <div className="min-h-screen">
@@ -287,6 +461,166 @@ export const EditProduct = () => {
                   />
                 </div>
               </div>
+
+              <section className="space-y-5 rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-900">Variants</h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Add size, color, quantity, and as many ordered images as each variant needs.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAddVariant}
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-(--main-color) hover:bg-white hover:text-(--main-color)"
+                  >
+                    <Plus size={16} />
+                    Add Variant
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {formData.variants.map((variant, variantIndex) => (
+                    <div key={variant.id} className="space-y-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4">
+                      <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h3 className="text-base font-semibold text-slate-900">Variant {variantIndex + 1}</h3>
+                          <p className="mt-1 text-sm text-slate-500">
+                            Configure stock details and attach variant-specific images.
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveVariant(variant.id)}
+                          className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] border border-red-200 bg-red-50 px-4 text-sm font-medium text-red-600 transition hover:bg-red-100 cursor-pointer"
+                        >
+                          <Trash2 size={16} />
+                          Remove
+                        </button>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <label className="space-y-2">
+                          <span className="text-sm font-medium text-slate-700">Size</span>
+                          <select
+                            value={variant.size}
+                            onChange={(event) => handleVariantChange(variant.id, "size", event.target.value)}
+                            className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
+                          >
+                            <option value="">Select size</option>
+                            {sizeOptions.map((size) => (
+                              <option key={size} value={size}>
+                                {size}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className="space-y-2">
+                          <span className="text-sm font-medium text-slate-700">Color</span>
+                          <select
+                            value={variant.color}
+                            onChange={(event) => handleVariantChange(variant.id, "color", event.target.value)}
+                            className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
+                          >
+                            <option value="">Select color</option>
+                            {colorOptions.map((color) => (
+                              <option key={color} value={color}>
+                                {color}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label className="space-y-2">
+                          <span className="text-sm font-medium text-slate-700">Quantity</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={variant.quantity}
+                            onChange={(event) => handleVariantChange(variant.id, "quantity", event.target.value)}
+                            placeholder="0"
+                            className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
+                          />
+                        </label>
+                      </div>
+
+                      <div className="space-y-4 rounded-[10px] border border-slate-200 bg-white p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <h4 className="text-sm font-semibold text-slate-900">Variant Images</h4>
+                            <p className="mt-1 text-sm text-slate-500">
+                              Each image row stores one file and its sort order.
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleAddVariantImage(variant.id)}
+                            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-(--main-color) hover:bg-white hover:text-(--main-color)"
+                          >
+                            <ImagePlus size={16} />
+                            Add Image
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          {variant.images.map((image, imageIndex) => (
+                            <div
+                              key={image.id}
+                              className="grid gap-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4 md:grid-cols-[1.3fr_0.7fr_auto]"
+                            >
+                              <label className="space-y-2">
+                                <span className="text-sm font-medium text-slate-700">Image {imageIndex + 1}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(event) => handleVariantImageFileChange(variant.id, image.id, event)}
+                                  className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700"
+                                />
+                                {image.file ? (
+                                  <span className="block text-xs text-slate-500">{image.file.name}</span>
+                                ) : null}
+                              </label>
+
+                              <label className="space-y-2">
+                                <span className="text-sm font-medium text-slate-700">Sort Order</span>
+                                <input
+                                  name="sortOrder"
+                                  type="number"
+                                  min="0"
+                                  step="1"
+                                  value={image.sortOrder}
+                                  onChange={(event) =>
+                                    handleVariantImageFieldsChange(variant.id, image.id, event.target.name as keyof VariantImage, event.target.value)
+                                  }
+                                  placeholder="0"
+                                  className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
+                                />
+                              </label>
+
+                              <div className="flex items-end">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveVariantImage(variant.id, image.id)}
+                                  className="inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-[10px] border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                                  aria-label={`Delete image ${imageIndex + 1}`}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </div>
 
             <div className="space-y-6">
@@ -306,6 +640,7 @@ export const EditProduct = () => {
                       name="slug"
                       value={formData.slug}
                       onChange={handleInputChange}
+                      placeholder="silver-ring"
                       className="w-full rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
                     />
                   </label>
@@ -317,6 +652,7 @@ export const EditProduct = () => {
                       name="metaTitle"
                       value={formData.metaTitle}
                       onChange={handleInputChange}
+                      placeholder="Silver Ring | Rock"
                       className="w-full rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
                     />
                   </label>
@@ -328,9 +664,31 @@ export const EditProduct = () => {
                       value={formData.metaDescription}
                       onChange={handleInputChange}
                       rows={4}
+                      placeholder="Short SEO description for the product page."
                       className="w-full resize-none rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
                     />
                   </label>
+                </div>
+              </section>
+
+              <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">Variant Summary</h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Quick overview of how many variant rows and image rows are currently configured.
+                  </p>
+                </div>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-sm text-slate-500">Total variants</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900">{formData.variants.length}</div>
+                  </div>
+
+                  <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-sm text-slate-500">Image rows</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900">{totalVariantImages}</div>
+                  </div>
                 </div>
               </section>
 
@@ -355,7 +713,7 @@ export const EditProduct = () => {
                           : current,
                       )
                     }
-                    className={`relative inline-flex h-8 w-14 items-center rounded-full p-1 transition ${formData.isActive ? "bg-teal-400" : "bg-white/20"}`}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full p-1 transition cursor-pointer ${formData.isActive ? "bg-teal-400" : "bg-white/20"}`}
                     aria-pressed={formData.isActive}
                   >
                     <span

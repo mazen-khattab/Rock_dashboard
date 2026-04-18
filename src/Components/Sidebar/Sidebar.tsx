@@ -1,4 +1,4 @@
-import { NavLink, UNSAFE_decodeViaTurboStream } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import logo from "../../assets/Rock_logo.jpg";
 import { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ export const Sidebar = () => {
         { name: "Dashboard", link: "/admin", icon: <i className="fa-solid fa-house" /> },
         { name: "Products", link: "/admin/products", icon: <i className="fa-solid fa-boxes-stacked" /> },
         { name: "Orders", link: "/admin/orders", icon: <i className="fa-solid fa-cart-shopping" /> },
+        { name: "Colors", link: "/admin/colors", icon: <i className="fa-solid fa-palette" /> },
         { name: "Stock Management", link: "/admin/stock-management", icon: <i className="fa-solid fa-warehouse" /> },
         { name: "Customer", link: "/admin/customers", icon: <i className="fa-solid fa-people-group" /> },
         { name: "Users", link: "/admin/users", icon: <i className="fa-solid fa-users" /> },
