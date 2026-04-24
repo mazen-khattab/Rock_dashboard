@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Edit, Trash2, ChevronRight, ChevronsLeft, ChevronLeft, ChevronsRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import "./ListColors.css";
 import { MOCK_COLORS, type Color } from "../../../Types/Color";
 
-export const ListColor = () => {
+export const ListColors = () => {
   const [colors, setColors] = useState<Color[]>(MOCK_COLORS);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);

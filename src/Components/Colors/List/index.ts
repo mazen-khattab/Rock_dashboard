@@ -1,2 +1,2 @@
-export * from "./ListColor";
+export * from "./ListColors";
 

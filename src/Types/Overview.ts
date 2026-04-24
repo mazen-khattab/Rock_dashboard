@@ -8,3 +8,11 @@ export interface StatsCardProps {
   iconColor: string;
   iconBg: string;
 }
+
+export type NotificationItem = {
+  id: number;
+  title: string;
+  description: string;
+  time: string;
+  unread: boolean;
+};
