@@ -12,8 +12,9 @@ export const Sidebar = () => {
         { name: "Dashboard", link: "/admin", icon: <i className="fa-solid fa-house" /> },
         { name: "Products", link: "/admin/products", icon: <i className="fa-solid fa-boxes-stacked" /> },
         { name: "Orders", link: "/admin/orders", icon: <i className="fa-solid fa-cart-shopping" /> },
-        { name: "Colors", link: "/admin/colors", icon: <i className="fa-solid fa-palette" /> },
         { name: "Stock Management", link: "/admin/stock-management", icon: <i className="fa-solid fa-warehouse" /> },
+        { name: "Colors", link: "/admin/colors", icon: <i className="fa-solid fa-palette" /> },
+        { name: "Sizes", link: "/admin/sizes", icon: <i className="fa-solid fa-up-right-and-down-left-from-center"></i> },
         { name: "Customer", link: "/admin/customers", icon: <i className="fa-solid fa-people-group" /> },
         { name: "Users", link: "/admin/users", icon: <i className="fa-solid fa-users" /> },
         // { name: "Offers", link: "/admin/offers", icon: <i className="fa-solid fa-tag" /> },
@@ -38,7 +39,7 @@ export const Sidebar = () => {
 
         return () => window.removeEventListener('resize', updateSideBar);
     }, [])
-    
+
 
     const openDesktopMenu = () => {
         setIsDesktopOpen((prev) => !prev)
@@ -50,7 +51,7 @@ export const Sidebar = () => {
             <button
                 type="button"
                 onClick={() => setIsMobileOpen(true)}
-                className="fixed top-4 left-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-lg transition hover:bg-slate-50 lg:hidden"
+                className="fixed top-4 left-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-lg transition hover:bg-slate-50 lg:hidden cursor-pointer"
                 aria-label="Open menu"
             >
                 <Menu size={20} />
@@ -108,7 +109,7 @@ export const Sidebar = () => {
                                 );
                             }
 
-                         return (
+                            return (
                                 <NavLink
                                     to={item.link}
                                     key={item.link}

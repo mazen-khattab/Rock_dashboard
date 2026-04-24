@@ -6,7 +6,8 @@ import { CreateProduct } from "./Components/Products";
 import { EditProduct } from "./Components/Products";
 import { ListOrders, ShowOrder } from "./Components/Orders";
 import { CreateCustomer, EditCustomer, ListCustomers, ShowCustomer } from "./Components/Customers";
-import { CreateColor, EditColor, ListColor, ShowColor } from "./Components/Colors";
+import { CreateColor, EditColor, ListColors, ShowColor } from "./Components/Colors";
+import { CreateSize, EditSize, ListSizes, ShowSize } from "./Components/Sizes";
 import { ListUsers } from "./Components/Users";
 import {
   CreateStockManagement,
@@ -52,10 +53,17 @@ function App() {
           <Route path="customers/show/:customerId" element={<ShowCustomer />} />
 
           {/* colors */}
-          <Route path="colors" element={<ListColor />} />
+          <Route path="colors" element={<ListColors />} />
           <Route path="colors/create" element={<CreateColor />} />
+          <Route path="colors/create/:colorId" element={<CreateColor />} />
           <Route path="colors/edit/:colorId" element={<EditColor />} />
           <Route path="colors/show/:colorId" element={<ShowColor />} />
+
+          {/* sizes */}
+          <Route path="sizes" element={<ListSizes />} />
+          <Route path="sizes/create" element={<CreateSize />} />
+          <Route path="sizes/edit/:sizeId" element={<EditSize />} />
+          <Route path="sizes/show/:sizeId" element={<ShowSize />} />
 
           {/* users */}
           <Route path="users" element={<ListUsers />} />
@@ -66,7 +74,7 @@ function App() {
           <Route path="stock-management/edit/:variantId" element={<EditStockManagement />} />
           <Route path="stock-management/show/:variantId" element={<ShowStockManagement />} />
         </Route>
-        
+
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </Router>

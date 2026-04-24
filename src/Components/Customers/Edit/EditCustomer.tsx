@@ -1,7 +1,6 @@
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import "./EditCustomer.css";
 import { MOCK_CUSTOMERS, type Customer } from "../../../Types/Customer";
 
 export const EditCustomer = () => {

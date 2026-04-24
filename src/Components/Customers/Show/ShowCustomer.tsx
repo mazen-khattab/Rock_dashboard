@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { ArrowLeft, Mail, MapPinned, Phone, UserRound } from "lucide-react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import "./ShowCustomer.css";
 import { MOCK_CUSTOMERS, type Customer } from "../../../Types/Customer";
 
 export const ShowCustomer = () => {
