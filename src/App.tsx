@@ -9,6 +9,7 @@ import { CreateCustomer, EditCustomer, ListCustomers, ShowCustomer } from "./Com
 import { CreateColor, EditColor, ListColors, ShowColor } from "./Components/Colors";
 import { CreateSize, EditSize, ListSizes, ShowSize } from "./Components/Sizes";
 import { ListUsers } from "./Components/Users";
+import { Login } from "./Components/Auth";
 import {
   CreateStockManagement,
   EditStockManagement,
@@ -16,6 +17,10 @@ import {
   ShowStockManagement,
 } from "./Components/StockManagement";
 import "./App.css";
+
+function AuthLayout() {
+  return <Outlet />;
+}
 
 function AdminLayout() {
   return (
@@ -32,7 +37,15 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/admin" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
+        </Route>
+
+        <Route path="/dashboard" element={<AdminLayout />}>
+          <Route index element={<Overview />} />
+        </Route>
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Overview />} />
@@ -75,7 +88,7 @@ function App() {
           <Route path="stock-management/show/:variantId" element={<ShowStockManagement />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/admin" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
