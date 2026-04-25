@@ -22,21 +22,21 @@ export const ListOrders = () => {
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
         <table className="w-full table-auto">
-          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700">
+          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 text-[12px] sm:text-[14px] lg:text-[16px]">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">Number</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Total Price</th>
-              {/* <th className="px-4 py-3 text-left text-sm font-medium">Full Address</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Governorate</th> */}
-              <th className="px-4 py-3 text-left text-sm font-medium">City</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Created At</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+              <th className="px-4 py-3 text-left font-medium">Number</th>
+              <th className="px-4 py-3 text-left font-medium">Customer</th>
+              <th className="px-4 py-3 text-left font-medium">Total Price</th>
+              {/* <th className="px-4 py-3 text-left font-medium">Full Address</th>
+              <th className="px-4 py-3 text-left font-medium">Governorate</th> */}
+              <th className="px-4 py-3 text-left font-medium">City</th>
+              <th className="px-4 py-3 text-left font-medium">Status</th>
+              <th className="px-4 py-3 text-left font-medium">Created At</th>
+              <th className="px-4 py-3 text-left font-medium">Actions</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="text-[12px] sm:text-[14px] lg:text-[16px]">
             {currentOrders.map((order) => (
               <tr key={order.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-800">{order.number}</td>
@@ -80,18 +80,18 @@ export const ListOrders = () => {
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-sm text-slate-500">{totalRows} row(s)</div>
+        <div className="text-slate-500 text-[12px] sm:text-[14px] lg:text-[16px]">{totalRows} row(s)</div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 text-[12px] sm:text-[14px] lg:text-[16px]">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-600">Rows per page</span>
+            <span className="text-slate-600 hidden sm:block">Rows per page</span>
             <select
               value={rowsPerPage}
               onChange={(e) => {
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="rounded border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700"
+              className="rounded border border-slate-200 bg-white px-3 py-1 text-slate-700"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -100,7 +100,7 @@ export const ListOrders = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-600">
+            <span className="text-slate-600 hidden sm:block">
               Page {currentPage} of {totalPages || 1}
             </span>
             <div className="flex gap-1">

@@ -6,4 +6,11 @@
 .app-content {
   flex: 1;
   min-width: 0;
+  padding-top: 4.5rem;
+}
+
+@media (min-width: 1024px) {
+  .app-content {
+    padding-top: 0;
+  }
 }
