@@ -13,13 +13,9 @@ import {
   Trash2,
   Type,
 } from "lucide-react";
-
-import { MOCK_PRODUCTS, type Product, type ProductFormData, type ProductVariant, type VariantImage } from "../../../Types/Product";
-
-const languageOptions = [
-  { label: "Arabic", value: "ar" },
-  { label: "English", value: "en" },
-];
+import { type CreatedVariantImage, type CreateVariant, type Product, type ProductFormData } from "../../../Types/Product";
+import { useProduct } from "../../../Context/ProductContext";
+import { SeoPricingCard } from "../Shared/SeoPricingCard";
 
 const categoryOptions = [
   { label: "Tops", value: "tops" },
@@ -32,17 +28,17 @@ const categoryOptions = [
 const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
 const colorOptions = ["Gold", "Silver", "Rose Gold", "Black", "White", "Green", "Blue", "Red"];
 
-const createEmptyVariantImage = (): VariantImage => ({
+const createEmptyVariantImage = (): CreatedVariantImage => ({
   id: crypto.randomUUID(),
   file: null,
   sortOrder: "",
 });
 
-const createEmptyVariant = (): ProductVariant => ({
+const createEmptyVariant = (): CreateVariant => ({
   id: crypto.randomUUID(),
   size: "",
   color: "",
-  quantity: "",
+  quantity: 0,
   images: [createEmptyVariantImage()],
 });
 
@@ -62,21 +58,32 @@ const generateSlug = (name: string): string =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
+type SeoLocale = "en" | "ar";
+type SeoField = "slug" | "metaTitle" | "metaDescription";
+
 // this will return the intial values for form data inputs
 const buildInitialFormData = (product: Product): ProductFormData => {
-  const { name, category, sizes, price, status } = product;
+  const { name, category, price, isActive } = product;
+  const nameAr = `${name} Arabic`;
+  const slugEn = generateSlug(name);
 
   return {
-    nameAr: `${name} Arabic`,
+    nameAr,
     nameEn: name,
-    language: "en",
     category: normalizeCategory(category),
-    description: `<p>${name} is part of the ${category} collection.</p><p>Available sizes: ${sizes.join(", ")}.</p>`,
-    slug: generateSlug(name),
+    descriptionAr: `<p>${nameAr} is part of the ${category} collection.</p>`,
+    descriptionEn: `<p>${name} is part of the ${category} collection.</p>`,
+    slug: slugEn,
+    slugEn,
+    slugAr: "",
     metaTitle: `${name} | Rock`,
+    metaTitleEn: `${name} | Rock`,
+    metaTitleAr: `${nameAr} | روك`,
     metaDescription: `${name} from the ${category} category at Rock.`,
-    price: price.toFixed(2),
-    isActive: status === "Active",
+    metaDescriptionEn: `${name} from the ${category} category at Rock.`,
+    metaDescriptionAr: `وصف سيو قصير لمنتج ${nameAr}.`,
+    price,
+    isActive,
     variants: [createEmptyVariant()],
   };
 };
@@ -84,13 +91,17 @@ const buildInitialFormData = (product: Product): ProductFormData => {
 export const EditProduct = () => {
   const { productId } = useParams();
   const { state } = useLocation();
+  const { products, getProductById, loading, error } = useProduct();
 
-  // userMemo here to cache the product and prevent research in MOCK_PRODUCTS each render
-  // useMemo will work each time the productId and state change
+  // useMemo caches the resolved product while route state or context data changes.
   const product = useMemo(() => {
     const stateProduct = (state as { product?: Product })?.product;
-    return stateProduct ?? MOCK_PRODUCTS.find((p) => p.id === productId);
-  }, [productId, state]);
+
+    const numericId = Number(productId);
+    if (isNaN(numericId)) return null;
+
+    return stateProduct ?? products.find((p) => p.id === numericId);
+  }, [productId, products, state]);
 
   // Text editor.
   const editorRef = useRef<HTMLDivElement>(null);
@@ -102,6 +113,22 @@ export const EditProduct = () => {
 
   // Synchronizes form data and the text editor's content whenever the product changes.
   useEffect(() => {
+    if (!productId || product) {
+      return;
+    }
+
+    /**
+     * Fetch products on component mount.
+     * We use 'void' to explicitly signal that we're not awaiting this promise here.
+     * The '.catch()' is added to prevent 'Uncaught in Promise' warnings in the console,
+     * as the actual error state is managed globally within the ProductContext.
+     */
+    void getProductById(productId).catch(() => {
+      console.error("Error fetching products. Check ProductContext for details.");
+    });
+  }, [getProductById, product, productId]);
+
+  useEffect(() => {
     if (!product) {
       return;
     }
@@ -110,7 +137,7 @@ export const EditProduct = () => {
     setFormData(nextFormData);
 
     if (editorRef.current) {
-      editorRef.current.innerHTML = nextFormData.description;
+      editorRef.current.innerHTML = nextFormData.descriptionEn;
     }
   }, [product]);
 
@@ -127,6 +154,39 @@ export const EditProduct = () => {
     );
   };
 
+  const handleSeoFieldChange = (locale: SeoLocale, field: SeoField, value: string) => {
+    const fieldMap = {
+      en: {
+        slug: "slugEn",
+        metaTitle: "metaTitleEn",
+        metaDescription: "metaDescriptionEn",
+      },
+      ar: {
+        slug: "slugAr",
+        metaTitle: "metaTitleAr",
+        metaDescription: "metaDescriptionAr",
+      },
+    } as const;
+
+    const legacyFieldMap = {
+      slug: "slug",
+      metaTitle: "metaTitle",
+      metaDescription: "metaDescription",
+    } as const;
+
+    const localizedField = fieldMap[locale][field];
+
+    setFormData((current) =>
+      current
+        ? {
+          ...current,
+          [localizedField]: value,
+          ...(locale === "en" ? { [legacyFieldMap[field]]: value } : {}),
+        }
+        : current,
+    );
+  };
+
   // used in text editor to apply the style on the editor value
   const applyEditorCommand = (command: string, value?: string) => {
     editorRef.current?.focus();
@@ -135,7 +195,7 @@ export const EditProduct = () => {
       current
         ? {
           ...current,
-          description: editorRef.current?.innerHTML ?? "",
+          descriptionEn: editorRef.current?.innerHTML ?? "",
         }
         : current,
     );
@@ -147,14 +207,14 @@ export const EditProduct = () => {
       current
         ? {
           ...current,
-          description: editorRef.current?.innerHTML ?? "",
+          descriptionEn: editorRef.current?.innerHTML ?? "",
         }
         : current,
     );
   };
 
   // used to handle changing in variants values (size, color, quantity, and image)
-  const handleVariantChange = (variantId: string, key: keyof Omit<ProductVariant, "id" | "images">, value: string) => {
+  const handleVariantChange = (variantId: string, key: keyof Omit<CreateVariant, "id" | "images">, value: string) => {
     setFormData((current) =>
       current
         ? {
@@ -258,7 +318,7 @@ export const EditProduct = () => {
   };
 
   // used to handle change in all fields except file in the variant image.
-  const handleVariantImageFieldsChange = (variantId: string, imageId: string, field: keyof VariantImage, value: any) => {
+  const handleVariantImageFieldsChange = (variantId: string, imageId: string, field: keyof CreatedVariantImage, value: string) => {
     setFormData((current) =>
       current
         ? {
@@ -303,6 +363,14 @@ export const EditProduct = () => {
 
     console.log("Edit product payload:", payload);
   };
+
+  if (loading && !product) {
+    return <div className="min-h-screen p-6 text-slate-500">Loading product...</div>;
+  }
+
+  if (error && !product) {
+    return <div className="min-h-screen p-6 text-rose-600">{error}</div>;
+  }
 
   if (!product || !formData) {
     return <Navigate to="/admin/products" replace />;
@@ -371,22 +439,6 @@ export const EditProduct = () => {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-sm font-medium text-slate-700">Language</span>
-                  <select
-                    name="language"
-                    value={formData.language}
-                    onChange={handleInputChange}
-                    className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
-                  >
-                    {languageOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Category</span>
                   <select
                     name="category"
@@ -400,27 +452,6 @@ export const EditProduct = () => {
                       </option>
                     ))}
                   </select>
-                </label>
-              </div>
-
-              <div>
-                <label className="space-y-2">
-                  <span className="text-sm font-medium text-slate-700">Price</span>
-                  <div className="w-full flex overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 focus-within:border-teal-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-teal-100">
-                    <span className="flex items-center border-r border-slate-200 px-4 text-sm font-medium text-slate-500">
-                      EGP
-                    </span>
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      placeholder="0.00"
-                      min="0"
-                      step="0.01"
-                      className="w-full bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400"
-                    />
-                  </div>
                 </label>
               </div>
 
@@ -596,7 +627,7 @@ export const EditProduct = () => {
                                   step="1"
                                   value={image.sortOrder}
                                   onChange={(event) =>
-                                    handleVariantImageFieldsChange(variant.id, image.id, event.target.name as keyof VariantImage, event.target.value)
+                                    handleVariantImageFieldsChange(variant.id, image.id, event.target.name as keyof CreatedVariantImage, event.target.value)
                                   }
                                   placeholder="0"
                                   className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
@@ -624,52 +655,11 @@ export const EditProduct = () => {
             </div>
 
             <div className="space-y-6">
-              <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-900">SEO & Pricing</h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Prepare the product for search and storefront listing.
-                  </p>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-slate-700">Slug</span>
-                    <input
-                      type="text"
-                      name="slug"
-                      value={formData.slug}
-                      onChange={handleInputChange}
-                      placeholder="silver-ring"
-                      className="w-full rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
-                    />
-                  </label>
-
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-slate-700">Meta Title</span>
-                    <input
-                      type="text"
-                      name="metaTitle"
-                      value={formData.metaTitle}
-                      onChange={handleInputChange}
-                      placeholder="Silver Ring | Rock"
-                      className="w-full rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
-                    />
-                  </label>
-
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-slate-700">Meta Description</span>
-                    <textarea
-                      name="metaDescription"
-                      value={formData.metaDescription}
-                      onChange={handleInputChange}
-                      rows={4}
-                      placeholder="Short SEO description for the product page."
-                      className="w-full resize-none rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
-                    />
-                  </label>
-                </div>
-              </section>
+              <SeoPricingCard
+                values={formData}
+                onPriceChange={handleInputChange}
+                onSeoChange={handleSeoFieldChange}
+              />
 
               <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
                 <div>

@@ -19,7 +19,6 @@ const iconClassName = "pointer-events-none absolute left-4 top-1/2 -translate-y-
 
 const mockHandleLogin = async ({ email, password }: LoginFormValues) => {
   await new Promise((resolve) => setTimeout(resolve, 900));
-  return 
 
   if (email === "admin@test.com" && password === "password123") {
     return;
@@ -46,8 +45,8 @@ export const Login = () => {
   const {register, handleSubmit, formState: { errors, isSubmitting }} = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "admin@test.com",
+      password: "password123",
     },
   });
 
@@ -56,7 +55,7 @@ export const Login = () => {
 
     try {
       await mockHandleLogin(values);
-      navigate("/dashboard");
+      navigate("/admin");
     } catch (error) {
       setGlobalError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     }

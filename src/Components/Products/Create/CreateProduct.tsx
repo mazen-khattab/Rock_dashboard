@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   ArrowLeft,
   Bold,
@@ -11,35 +11,25 @@ import {
   Trash2,
   Type,
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import type { VariantImage, ProductVariant, ProductFormData } from "../../../Types/Product";
+import { Link, useNavigate } from "react-router-dom";
+import { useProduct } from "../../../Context/ProductContext";
+import type { CreatedVariantImage, CreateVariant, ProductFormData } from "../../../Types/Product";
+import { SeoPricingCard } from "../Shared/SeoPricingCard";
+import { useCategory } from "../../../Context/CategoryContext";
+import { useSize } from "../../../Context/SizeContext";
+import { useColor } from "../../../Context/ColorContext";
 
-const languageOptions = [
-  { label: "Arabic", value: "ar" },
-  { label: "English", value: "en" },
-];
-
-const categoryOptions = [
-  { label: "Rings", value: "rings" },
-  { label: "Necklaces", value: "necklaces" },
-  { label: "Bracelets", value: "bracelets" },
-  { label: "Earrings", value: "earrings" },
-];
-
-const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
-const colorOptions = ["Gold", "Silver", "Rose Gold", "Black", "White", "Green", "Blue", "Red"];
-
-const createEmptyVariantImage = (): VariantImage => ({
+const createEmptyVariantImage = (): CreatedVariantImage => ({
   id: crypto.randomUUID(),
   file: null,
   sortOrder: "",
 });
 
-const createEmptyVariant = (): ProductVariant => ({
+const createEmptyVariant = (): CreateVariant => ({
   id: crypto.randomUUID(),
   size: "",
   color: "",
-  quantity: "",
+  quantity: 0,
   images: [createEmptyVariantImage()],
 });
 
@@ -53,23 +43,51 @@ const toolbarButtons = [
   { label: "Numbered", icon: ListOrdered, command: "insertOrderedList" },
 ];
 
+type SeoLocale = "en" | "ar";
+type SeoField = "slug" | "metaTitle" | "metaDescription";
+
+const appendFormValue = (data: FormData, key: string, value: string | number | boolean) => {
+data.append(key, String(value));
+};
+
 export const CreateProduct = () => {
+  const navigate = useNavigate();
+  const { createProduct, loading, error } = useProduct();
+  const { categoryLookup, getCategoryLookup } = useCategory();
+  const { sizeLookup, getSizeLookup } = useSize();
+  const { colorLookup, getColorLookup } = useColor();
   const [formData, setFormData] = useState<ProductFormData>({
+    price: 0,
     nameAr: "",
     nameEn: "",
-    language: "ar",
-    category: "rings",
-    description: "",
-    slug: "",
-    metaTitle: "",
-    metaDescription: "",
-    price: "",
+    descriptionAr: "",
+    descriptionEn: "",
+    slugEn: "",
+    slugAr: "",
+    metaTitleEn: "",
+    metaTitleAr: "",
+    metaDescriptionEn: "",
+    metaDescriptionAr: "",
+    category: 0,
     isActive: true,
     variants: [createEmptyVariant()],
   });
 
   // Text editor.
-  const editorRef = useRef<HTMLDivElement>(null);
+  const editorRefAR = useRef<HTMLDivElement>(null);
+  const editorRefEn = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    void getCategoryLookup().catch(() => {
+      console.error("Error fetching products. Check ProductContext for details.");
+    });
+    void getSizeLookup().catch(() => {
+      console.error("Error fetching sizes. Check SizeContext for details.");
+    });
+    void getColorLookup().catch(() => {
+      console.error("Error fetching colors. Check ColorContext for details.");
+    });
+  }, [getCategoryLookup, getSizeLookup, getColorLookup]);
 
   // used to handle changing in input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -80,13 +98,42 @@ export const CreateProduct = () => {
     }));
   };
 
+  /**
+ * Updates localized SEO field values (slug, metaTitle, metaDescription) in the form state.
+ * @param locale - The current language locale ("en" or "ar").
+ * @param field - The generic SEO field name ("slug", "metaTitle", or "metaDescription").
+ * @param value - The text string entered by the user.
+ */
+  const handleSeoFieldChange = (locale: SeoLocale, field: SeoField, value: string) => {
+    const fieldMap = {
+      en: {
+        slug: "slugEn",
+        metaTitle: "metaTitleEn",
+        metaDescription: "metaDescriptionEn",
+      },
+      ar: {
+        slug: "slugAr",
+        metaTitle: "metaTitleAr",
+        metaDescription: "metaDescriptionAr",
+      },
+    } as const;
+
+    const localizedField = fieldMap[locale][field];
+
+    setFormData((current) => ({
+      ...current,
+      [localizedField]: value,
+    }));
+  };
+
   // used in text editor to apply the style on the editor value 
   const applyEditorCommand = (command: string, value?: string) => {
-    editorRef.current?.focus();
+    // editorRefAR.current?.focus();
     document.execCommand(command, false, value);
     setFormData((current) => ({
       ...current,
-      description: editorRef.current?.innerHTML ?? "",
+      descriptionAr: editorRefAR.current?.innerHTML ?? "",
+      descriptionEn: editorRefEn.current?.innerHTML ?? "",
     }));
   };
 
@@ -94,12 +141,13 @@ export const CreateProduct = () => {
   const handleDescriptionChange = () => {
     setFormData((current) => ({
       ...current,
-      description: editorRef.current?.innerHTML ?? "",
+      descriptionAr: editorRefAR.current?.innerHTML ?? "",
+      descriptionEn: editorRefEn.current?.innerHTML ?? "",
     }));
   };
 
   // used to handle changing in variants values (size, color, quantity, and image)
-  const handleVariantChange = (variantId: string, key: keyof Omit<ProductVariant, "id" | "images">, value: string) => {
+  const handleVariantChange = (variantId: string, key: keyof Omit<CreateVariant, "id" | "images">, value: string) => {
     setFormData((current) => ({
       ...current,
       variants: current.variants.map((variant) =>
@@ -177,9 +225,9 @@ export const CreateProduct = () => {
       }),
     }));
   };
-  
+
   // used to handle change in all fields except file in the variant image.
-  const handleVariantImageFieldsChange = (variantId: string, imageId: string, field: keyof VariantImage, value: any) => {
+  const handleVariantImageFieldsChange = (variantId: string, imageId: string, field: keyof CreatedVariantImage, value: any) => {
     setFormData((current) => ({
       ...current,
       variants: current.variants.map((variant) =>
@@ -193,25 +241,48 @@ export const CreateProduct = () => {
     }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const data = new FormData();
 
-    const payload = {
-      ...formData,
-      variants: formData.variants.map((variant) => ({
-        size: variant.size,
-        color: variant.color,
-        quantity: Number(variant.quantity || 0),
-        images: variant.images
-          .filter((image) => image.file)
-          .map((image) => ({
-            name: image.file?.name ?? "",
-            sortOrder: Number(image.sortOrder || 0),
-          })),
-      })),
-    };
+    appendFormValue(data, "NameAr", formData.nameAr);
+    appendFormValue(data, "NameEn", formData.nameEn);
+    appendFormValue(data, "DescriptionAr", formData.descriptionAr);
+    appendFormValue(data, "DescriptionEn", formData.descriptionEn);
+    appendFormValue(data, "SlugAr", formData.slugAr);
+    appendFormValue(data, "SlugEn", formData.slugEn);
+    appendFormValue(data, "MetaTitleAr", formData.metaTitleAr);
+    appendFormValue(data, "MetaTitleEn", formData.metaTitleEn);
+    appendFormValue(data, "MetaDescriptionAr", formData.metaDescriptionAr);
+    appendFormValue(data, "MetaDescriptionEn", formData.metaDescriptionEn);
+    appendFormValue(data, "CategoryId", Number(formData.category));
+    appendFormValue(data, "Price", Number(formData.price));
+    appendFormValue(data, "IsActive", formData.isActive);
 
-    console.log("Create product payload:", payload);
+    formData.variants.forEach((variant, variantIndex) => {
+      appendFormValue(data, `Variants[${variantIndex}].SizeId`, Number(variant.size));
+      appendFormValue(data, `Variants[${variantIndex}].ColorId`, Number(variant.color));
+      appendFormValue(data, `Variants[${variantIndex}].Quantity`, Number(variant.quantity || 0));
+
+      variant.images.forEach((image, imageIndex) => {
+        if (image.file) {
+          data.append(`Variants[${variantIndex}].Images[${imageIndex}].File`, image.file);
+        }
+
+        appendFormValue(
+          data,
+          `Variants[${variantIndex}].Images[${imageIndex}].SortOrder`,
+          Number(image.sortOrder || 0),
+        );
+      });
+    });
+
+    try {
+      await createProduct(data);
+      // navigate("/admin/products");
+    } catch (submitError) {
+      console.error("Failed to create product:", submitError);
+    }
   };
 
   const totalVariantImages = formData.variants.reduce((total, variant) => total + variant.images.length, 0);
@@ -236,19 +307,27 @@ export const CreateProduct = () => {
           <button
             type="submit"
             form="create-product-form"
-            className="inline-flex items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) cursor-pointer">
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer">
             <Plus size={16} />
-            Create
+            {loading ? "Creating..." : "Create"}
           </button>
         </div>
 
         {/* form inputs */}
         <form id="create-product-form" onSubmit={handleSubmit} className="space-y-8">
+          {error ? (
+            <div className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          ) : null}
+
           <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-6">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">Product Details</h2>
                 <p className="mt-1 text-sm text-slate-500">
+                  Fill in the details for the new product.
                 </p>
               </div>
 
@@ -276,7 +355,7 @@ export const CreateProduct = () => {
                   />
                 </label>
 
-                <label className="space-y-2">
+                {/* <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Language</span>
                   <select
                     name="language"
@@ -290,7 +369,7 @@ export const CreateProduct = () => {
                       </option>
                     ))}
                   </select>
-                </label>
+                </label> */}
 
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Category</span>
@@ -300,20 +379,18 @@ export const CreateProduct = () => {
                     onChange={handleInputChange}
                     className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                   >
-                    {categoryOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    <option value={0}>Select category</option>
+                    {categoryLookup.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.name}
                       </option>
                     ))}
                   </select>
                 </label>
-              </div>
 
-              {/* Price */}
-              <div>
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Price</span>
-                  <div className="w-full flex overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 focus-within:border-teal-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-teal-100">
+                  <div className="flex w-full overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 transition-all duration-200 focus-within:border-teal-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-teal-100">
                     <span className="flex items-center border-r border-slate-200 px-4 text-sm font-medium text-slate-500">
                       EGP
                     </span>
@@ -324,49 +401,91 @@ export const CreateProduct = () => {
                       onChange={handleInputChange}
                       placeholder="0.00"
                       min="0"
-                      step="0.01"
-                      className="w-full px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 bg-white"
+                      step="1"
+                      className="w-full bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400"
                     />
                   </div>
                 </label>
+
               </div>
 
-              {/* Description */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-sm font-medium text-slate-700">Description</label>
+              <div className="flex items-center justify-between gap-4">
+                {/* DescriptionEn */}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Description in English</label>
+                    </div>
+                  </div>
+
+                  <div className="overflow-hidden rounded-[10px] border border-slate-200 bg-white shadow-sm">
+                    <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                      {toolbarButtons.map((button) => {
+                        const Icon = button.icon;
+
+                        return (
+                          <button
+                            key={button.label}
+                            type="button"
+                            onClick={() => applyEditorCommand(button.command, button.value)}
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
+                            aria-label={button.label}
+                            title={button.label}
+                          >
+                            <Icon size={16} />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div
+                      ref={editorRefEn}
+                      contentEditable
+                      suppressContentEditableWarning
+                      onInput={handleDescriptionChange}
+                      className="min-h-56 px-4 py-4 text-sm leading-7 text-slate-700 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_h3]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
+                      data-placeholder="Write a rich description for your product..."
+                    />
                   </div>
                 </div>
 
-                <div className="overflow-hidden rounded-[10px] border border-slate-200 bg-white shadow-sm">
-                  <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
-                    {toolbarButtons.map((button) => {
-                      const Icon = button.icon;
-
-                      return (
-                        <button
-                          key={button.label}
-                          type="button"
-                          onClick={() => applyEditorCommand(button.command, button.value)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
-                          aria-label={button.label}
-                          title={button.label}
-                        >
-                          <Icon size={16} />
-                        </button>
-                      );
-                    })}
+                {/* DescriptionAr */}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Description in Arabic</label>
+                    </div>
                   </div>
 
-                  <div
-                    ref={editorRef}
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={handleDescriptionChange}
-                    className="min-h-56 px-4 py-4 text-sm leading-7 text-slate-700 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_h3]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
-                    data-placeholder="Write a rich description for your product..."
-                  />
+                  <div className="overflow-hidden rounded-[10px] border border-slate-200 bg-white shadow-sm">
+                    <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                      {toolbarButtons.map((button) => {
+                        const Icon = button.icon;
+
+                        return (
+                          <button
+                            key={button.label}
+                            type="button"
+                            onClick={() => applyEditorCommand(button.command, button.value)}
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
+                            aria-label={button.label}
+                            title={button.label}
+                          >
+                            <Icon size={16} />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div
+                      ref={editorRefAR}
+                      contentEditable
+                      suppressContentEditableWarning
+                      onInput={handleDescriptionChange}
+                      className="min-h-56 px-4 py-4 text-sm leading-7 text-slate-700 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_h3]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
+                      data-placeholder="Write a rich description for your product..."
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -413,9 +532,9 @@ export const CreateProduct = () => {
                             className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                           >
                             <option value="">Select size</option>
-                            {sizeOptions.map((size) => (
-                              <option key={size} value={size}>
-                                {size}
+                            {sizeLookup.map((size) => (
+                              <option key={size.id} value={size.id}>
+                                {size.name}
                               </option>
                             ))}
                           </select>
@@ -429,9 +548,9 @@ export const CreateProduct = () => {
                             className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                           >
                             <option value="">Select color</option>
-                            {colorOptions.map((color) => (
-                              <option key={color} value={color}>
-                                {color}
+                            {colorLookup.map((color) => (
+                              <option key={color.id} value={color.id}>
+                                {color.name}
                               </option>
                             ))}
                           </select>
@@ -495,7 +614,7 @@ export const CreateProduct = () => {
                                   step="1"
                                   value={image.sortOrder}
                                   onChange={(event) =>
-                                    handleVariantImageFieldsChange(variant.id, image.id, event.target.name as keyof VariantImage, event.target.value)
+                                    handleVariantImageFieldsChange(variant.id, image.id, event.target.name as keyof CreatedVariantImage, event.target.value)
                                   }
                                   placeholder="0"
                                   className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
@@ -523,52 +642,10 @@ export const CreateProduct = () => {
             </div>
 
             <div className="space-y-6">
-              <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-900">SEO & Pricing</h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Prepare the product for search and storefront listing.
-                  </p>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-slate-700">Slug</span>
-                    <input
-                      type="text"
-                      name="slug"
-                      value={formData.slug}
-                      onChange={handleInputChange}
-                      placeholder="silver-ring"
-                      className="w-full rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
-                    />
-                  </label>
-
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-slate-700">Meta Title</span>
-                    <input
-                      type="text"
-                      name="metaTitle"
-                      value={formData.metaTitle}
-                      onChange={handleInputChange}
-                      placeholder="Silver Ring | Rock"
-                      className="w-full rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
-                    />
-                  </label>
-
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-slate-700">Meta Description</span>
-                    <textarea
-                      name="metaDescription"
-                      value={formData.metaDescription}
-                      onChange={handleInputChange}
-                      rows={4}
-                      placeholder="Short SEO description for the product page."
-                      className="w-full resize-none rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100"
-                    />
-                  </label>
-                </div>
-              </section>
+              <SeoPricingCard
+                values={formData}
+                onSeoChange={handleSeoFieldChange}
+              />
 
               <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
                 <div>

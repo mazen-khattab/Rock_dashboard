@@ -1,9 +1,55 @@
+export type ColorId = string;
+
 export interface Color {
-  id: string;
+  id: ColorId;
   name: string;
   hex: string;
   isActive: boolean;
+  [key: string]: unknown;
 }
+
+export interface ColorLookupItem {
+  id?: ColorId;
+  value?: ColorId;
+  label?: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
+export type ColorListResponse =
+  | Color[]
+  | {
+      data?: Color[];
+      items?: Color[];
+    };
+
+export interface PaginatedColors {
+  items: Color[];
+  totalPages: number;
+  totalCount: number;
+  pageNumber: number;
+}
+
+export type ColorDetailsResponse = Color | { data?: Color };
+
+export type ColorLookupResponse =
+  | ColorLookupItem[]
+  | {
+      data?: ColorLookupItem[];
+      items?: ColorLookupItem[];
+    };
+
+export type ColorContextValue = {
+  colors: Color[];
+  selectedColor: Color | null;
+  colorLookup: ColorLookupItem[];
+  totalColorCount: number;
+  loading: boolean;
+  error: string | null;
+  getAllColors: () => Promise<PaginatedColors>;
+  getColorById: (colorId: ColorId) => Promise<Color>;
+  getColorLookup: () => Promise<ColorLookupItem[]>;
+};
 
 export type ColorFormData = {
   name: string;
