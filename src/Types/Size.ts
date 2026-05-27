@@ -1,9 +1,55 @@
+export type SizeId = string;
+
 export interface Size {
-  id: string;
+  id: SizeId;
   name: string;
   sortOrder: number;
   isActive: boolean;
+  [key: string]: unknown;
 }
+
+export interface SizeLookupItem {
+  id?: SizeId;
+  value?: SizeId;
+  label?: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
+export type SizeListResponse =
+  | Size[]
+  | {
+      data?: Size[];
+      items?: Size[];
+    };
+
+export interface PaginatedSizes {
+  items: Size[];
+  totalPages: number;
+  totalCount: number;
+  pageNumber: number;
+}
+
+export type SizeDetailsResponse = Size | { data?: Size };
+
+export type SizeLookupResponse =
+  | SizeLookupItem[]
+  | {
+      data?: SizeLookupItem[];
+      items?: SizeLookupItem[];
+    };
+
+export type SizeContextValue = {
+  sizes: Size[];
+  selectedSize: Size | null;
+  sizeLookup: SizeLookupItem[];
+  totalSizeCount: number;
+  loading: boolean;
+  error: string | null;
+  getAllSizes: () => Promise<PaginatedSizes>;
+  getSizeById: (sizeId: SizeId) => Promise<Size>;
+  getSizeLookup: () => Promise<SizeLookupItem[]>;
+};
 
 export type SizeFormData = {
   name: string;

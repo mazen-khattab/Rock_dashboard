@@ -1,40 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Edit, Trash2, ChevronRight, ChevronsLeft, ChevronLeft, ChevronsRight } from 'lucide-react';
 import "./ListProducts.css";
 import { Link } from 'react-router-dom';
-import { MOCK_PRODUCTS, type Product } from "../../../Types/Product";
+import { useProduct } from "../../../Context/ProductContext";
 
-// const getStockLevel = (quantity: number): StockLevel => {
-//   if (quantity === 0) {
-//     return 'Out of Stock';
-//   }
-
-//   if (quantity < 5) {
-//     return 'Low Stock';
-//   }
-
-//   return 'In Stock';
-// };
-
-// const stockLevelClassName: Record<StockLevel, string> = {
-//   'In Stock': 'border-emerald-200 bg-emerald-50 text-emerald-700',
-//   'Low Stock': 'border-amber-200 bg-amber-50 text-amber-700',
-//   'Out of Stock': 'border-rose-200 bg-rose-50 text-rose-700',
-// };
 
 export const ListProducts = () => {
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const { products, loading, error, totalProductCount, getAllProducts } = useProduct();
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  
+  useEffect(() => {
+    /**
+     * Fetch products on component mount.
+     * We use 'void' to explicitly signal that we're not awaiting this promise here.
+     * The '.catch()' is added to prevent 'Uncaught in Promise' warnings in the console,
+     * as the actual error state is managed globally within the ProductContext.
+     */
+    void getAllProducts(
+      currentPage,
+      rowsPerPage,
+    ).catch(() => {
+      console.error("Error fetching products. Check ProductContext for details.");
+    });
+  }, [getAllProducts, currentPage, rowsPerPage]);
 
-  const totalRows = products.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-  const from = (currentPage - 1) * rowsPerPage;
-  const currentProducts = products.slice(from, from + rowsPerPage);
+  useEffect(() => {
+    const nextTotalPages = Math.max(1, Math.ceil(totalProductCount / rowsPerPage));
 
-  const handleDelete = (id: string) => {
-    setProducts(products.filter((product) => product.id !== id));
-  };
+    if (currentPage > nextTotalPages) {
+      setCurrentPage(nextTotalPages);
+    }
+  }, [currentPage, totalProductCount, rowsPerPage]);
+
+  const totalRows = totalProductCount;
+  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+  const currentProducts = products;
 
   return (
     <div className="min-h-screen rounded-3xl p-6 text-slate-800 shadow-sm">
@@ -113,16 +114,41 @@ export const ListProducts = () => {
           </thead>
 
           <tbody className='text-[12px] sm:text-[14px] lg:text-[16px]'>
+            {loading && (
+              <tr>
+                <td colSpan={10} className="px-4 py-8 text-center text-slate-500">
+                  Loading products...
+                </td>
+              </tr>
+            )}
+
+            {!loading && error && (
+              <tr>
+                <td colSpan={10} className="px-4 py-8 text-center text-rose-600">
+                  {error}
+                </td>
+              </tr>
+            )}
+
+            {!loading && !error && currentProducts.length === 0 && (
+              <tr>
+                <td colSpan={10} className="px-4 py-8 text-center text-slate-500">
+                  No products found.
+                </td>
+              </tr>
+            )}
+
             {currentProducts.map((product) => {
-              const availableToSell = Math.max(0, product.currentPhysicalQuantity - product.reservedQuantity);
+              // const availableToSell = Math.max(0, product.variants.reduce((sum, variant) => sum + variant.quantity, 0) - product.variants.reduce((sum, variant) => sum + variant.reserved, 0));
               // const stockLevel = getStockLevel(product.currentPhysicalQuantity);
+              const availableToSell = product.available;
 
               return (
                 <tr key={product.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
                   <td className="px-4 py-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-500">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt={product.name} className="h-full w-full rounded object-cover" />
+                      {product.imageUrl ? (
+                        <img src={product.imageUrl} alt={product.name} className="h-full w-full rounded object-cover" />
                       ) : (
                         '48 x 48'
                       )}
@@ -131,8 +157,8 @@ export const ListProducts = () => {
                   <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">{product.name}</td>
                   <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{product.category}</td>
                   {/* <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.sku}</td> */}
-                  <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.currentPhysicalQuantity}</td>
-                  <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.reservedQuantity}</td>
+                  <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.quantity}</td>
+                  <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{product.reserved}</td>
                   <td className="px-4 py-3 font-semibold text-slate-900 whitespace-nowrap">{availableToSell}</td>
                   {/* <td className="px-4 py-3 whitespace-nowrap">
                     <span className={`rounded border px-3 py-1 text-xs ${stockLevelClassName[stockLevel]}`}>
@@ -154,12 +180,12 @@ export const ListProducts = () => {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`rounded border px-3 py-1 text-xs ${product.status === 'Active'
+                      className={`rounded border px-3 py-1 text-xs ${product.isActive
                         ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                         : 'border-amber-200 bg-amber-50 text-amber-700'
                         }`}
                     >
-                      {product.status}
+                      {product.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -172,8 +198,10 @@ export const ListProducts = () => {
                         <Edit size={16} />
                       </Link>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        type="button"
                         className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 cursor-pointer"
+                        disabled
+                        title="Delete action is not connected yet."
                       >
                         <Trash2 size={16} />
                       </button>
@@ -187,7 +215,7 @@ export const ListProducts = () => {
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-slate-500 text-[12px] sm:text-[14px] lg:text-[16px]">{totalRows} row(s)</div>
+        <div className="text-slate-500 text-[12px] sm:text-[14px] lg:text-[16px]">{rowsPerPage > totalRows ? totalRows : rowsPerPage} row(s)</div>
 
         <div className="flex items-center gap-6 text-[12px] sm:text-[14px] lg:text-[16px]">
           <div className="flex items-center gap-2">
@@ -200,6 +228,7 @@ export const ListProducts = () => {
               }}
               className="rounded border border-slate-200 bg-white px-3 py-1 text-slate-700"
             >
+              <option value={5}>5</option>
               <option value={10}>10</option>
               <option value={20}>20</option>
               <option value={50}>50</option>
@@ -227,14 +256,14 @@ export const ListProducts = () => {
               </button>
               <button
                 onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage >= totalPages}
+                disabled={currentPage >= totalPages || totalRows === 0}
                 className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronRight size={16} />
               </button>
               <button
                 onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage >= totalPages}
+                disabled={currentPage >= totalPages || totalRows === 0}
                 className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronsRight size={16} />
