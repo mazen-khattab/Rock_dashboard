@@ -11,13 +11,11 @@ export interface Product extends BaseProduct {
   available: number;
   sizes: string[];
   imageUrl: string;
-  currentPhysicalQuantity?: number;
-  reservedQuantity?: number;
-  status?: string;
   category: string;
 }
 
 export interface ProductFormData extends BaseProduct {
+  id?: string;
   nameAr: string;
   nameEn: string;
   descriptionAr: string;
@@ -29,60 +27,24 @@ export interface ProductFormData extends BaseProduct {
   metaDescriptionEn: string;
   metaDescriptionAr: string;
   variants: CreateVariant[];
-  category: number;
-}
-
-export interface Variant {
-  id: number;
-  productId: number;
-  imagesDtos: VariantImage[];
-  colorName: string;
-  hexCode: string;
-  sizeName: string;
-  quantity: number;
-  reserved: number;
-}
-
-export interface VariantImage {
-  id: number;
-  altText: string;
-  imageUrl: string;
+  categoryId: number;
 }
 
 export interface CreateVariant {
-  id: string;
-  size: string;
-  color: string;
+  id: number;
+  sizeId: number;
+  colorId: number;
   quantity: number;
   images: CreatedVariantImage[];
 }
 
+
 export type CreatedVariantImage = {
-  id: string;
-  file: File | null;
-  previewUrl?: string;
-  sortOrder: string;
+  id: number;
+  file?: File | null;
+  imageUrl?: string;
+  sortOrder: number;
 };
-
-// export type CreatedVariantImage = {
-//   id: string;
-//   file: File | null;
-//   sortOrder: string;
-// };
-
-// export type ProductFormData = {
-//   nameAr: string;
-//   nameEn: string;
-//   language: string;
-//   category: string;
-//   description: string;
-//   slug: string;
-//   metaTitle: string;
-//   metaDescription: string;
-//   price: string;
-//   isActive: boolean;
-//   variants: CreateVariant[];
-// };
 
 export interface PaginatedProducts {
   items: Product[];
@@ -97,9 +59,29 @@ export type ProductContextValue = {
   error: string | null; // Global error message state
   totalProductCount: number; // Total count of products for pagination purposes
   getAllProducts: (pageNumber: number, pageSize: number, category?: string, size?: string, color?: string) => Promise<PaginatedProducts>; // Function to fetch all products
-  createProduct: (payload: FormData) => Promise<Product>; // Function to create a new product
-  // getProductById: (productId: string) => Promise<Product>; // Function to fetch a single product
+  createProduct: (payload: FormData) => Promise<ProductFormData>; // Function to create a new product
+  updateProduct: (productId: number, payload: FormData) => Promise<Product>; // Function to update an existing product
+  deleteProdeuct: (productId: number) => Promise<void>; // Function to soft delete a product
+  getProductById: (productId: number) => Promise<ProductFormData>; // Function to fetch a single product
+  selectedProduct: ProductFormData | null; // The currently selected product
 };
+
+// export interface Variant {
+//   id: number;
+//   productId: number;
+//   imagesDtos: VariantImage[];
+//   colorName: string;
+//   hexCode: string;
+//   sizeName: string;
+//   quantity: number;
+//   reserved: number;
+// }
+
+// export interface VariantImage {
+//   id: number;
+//   altText: string;
+//   imageUrl: string;
+// }
 
 export const MOCK_PRODUCTS: Product[] = [
   { id: 1, name: "Classic White T-Shirt", category: "Tops", slug: "TS-WHT-M-001", price: 29.99, sizes: ["XS", "S", "M", "L", "XL"], currentPhysicalQuantity: 24, reservedQuantity: 4, isActive: true },

@@ -7,7 +7,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import { ProductService } from "../Services/ProductService";
-import type { Product, ProductContextValue, } from "../Types/Product";
+import type { Product, ProductContextValue, ProductFormData, } from "../Types/Product";
 
 /**
  * Initialize the context with undefined. 
@@ -21,6 +21,7 @@ const ProductContext = createContext<ProductContextValue | undefined>(undefined)
  */
 export const ProductProvider = ({ children }: PropsWithChildren) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<ProductFormData | null>(null);
   const [totalProductCount, setTotalProductCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +61,7 @@ export const ProductProvider = ({ children }: PropsWithChildren) => {
     try {
       const product = await ProductService.createProduct(payload);
 
-      setProducts((currentProducts) => [product, ...currentProducts]);
+      // setProducts((currentProducts) => [product, ...currentProducts]);
       setTotalProductCount((currentCount) => currentCount + 1);
 
       return product;
@@ -75,41 +76,93 @@ export const ProductProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   /**
+   * Updates an existing product and syncs it into the local cache.
+   */
+  const updateProduct = useCallback(async (productId: number, payload: FormData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const product = await ProductService.updateProduct(productId, payload);
+
+      setProducts((currentProducts) =>
+        currentProducts.map((currentProduct) =>
+          currentProduct.id === product.id ? product : currentProduct,
+        ),
+      );
+
+      return product;
+    } catch (error) {
+      console.error("Error updating product:", error);
+      const message = error instanceof Error ? error.message : "Failed to update product.";
+      setError(message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Soft deletes a product and removes it from the local cache.
+   */
+  const deleteProdeuct = useCallback(async (productId: number) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await ProductService.deleteProdeuct(productId);
+
+      setProducts((currentProducts) =>
+        currentProducts.filter((currentProduct) => currentProduct.id !== productId),
+      );
+      setTotalProductCount((currentCount) => Math.max(0, currentCount - 1));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      const message = error instanceof Error ? error.message : "Failed to delete product.";
+      setError(message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
    * Fetches a single product and intelligently updates it in the global list.
    * If the product exists in the list, it updates it; otherwise, it appends it.
    */
-  // const getProductById = useCallback(
-  //   async (productId: string) => {
-  //     setLoading(true);
-  //     setError(null);
+  const getProductById = useCallback(
+    async (productId: number) => {
+      setLoading(true);
+      setError(null);
 
-  //     try {
-  //       const product = await ProductService.getProductById(productId);
+      try {
+        const product = await ProductService.getProductById(productId);
 
-  //       // Update the products array state while maintaining immutability
-  //       setProducts((currentProducts) => {
-  //         const existingIndex = currentProducts.findIndex((item) => item.id === product.id);
+        // Update the products array state while maintaining immutability
+        // setProducts((currentProducts) => {
+        //   const existingIndex = currentProducts.findIndex((item) => item.id === product.id);
 
-  //         // If product not in list, add it
-  //         if (existingIndex === -1) {
-  //           return [...currentProducts, product];
-  //         }
+        //   // If product not in list, add it
+        //   if (existingIndex === -1) {
+        //     return [...currentProducts, product];
+        //   }
 
-  //         // If product exists, replace only that specific item to ensure data is fresh
-  //         return currentProducts.map((item) => (item.id === product.id ? product : item));
-  //       });
+        //   // If product exists, replace only that specific item to ensure data is fresh
+        //   return currentProducts.map((item) => (item.id === product.id ? product : item));
+        // });
 
-  //       return product;
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : "Failed to fetch product details.";
-  //       setError(message);
-  //       throw error;
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   },
-  //   [],
-  // );
+        setSelectedProduct(product);
+        return product;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to fetch product details.";
+        setError(message);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   /**
    * Memoize the context value to prevent consumers from re-rendering 
@@ -118,14 +171,17 @@ export const ProductProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo(
     () => ({
       products,
+      selectedProduct,
       loading,
       error,
       totalProductCount,
       getAllProducts,
       createProduct,
-      // getProductById,
+      updateProduct,
+      deleteProdeuct,
+      getProductById,
     }),
-    [createProduct, error, getAllProducts, loading, products, totalProductCount],
+    [createProduct, deleteProdeuct, error, getAllProducts, loading, products, totalProductCount, getProductById, selectedProduct, updateProduct],
   );
 
   return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;

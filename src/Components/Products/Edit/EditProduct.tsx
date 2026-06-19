@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { Link, Navigate, useLocation, useParams } from "react-router-dom";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Bold,
@@ -13,31 +13,32 @@ import {
   Trash2,
   Type,
 } from "lucide-react";
-import { type CreatedVariantImage, type CreateVariant, type Product, type ProductFormData } from "../../../Types/Product";
+import { type CreatedVariantImage, type CreateVariant, type ProductFormData } from "../../../Types/Product";
 import { useProduct } from "../../../Context/ProductContext";
 import { SeoPricingCard } from "../Shared/SeoPricingCard";
+import { useCategory } from "../../../Context/CategoryContext";
+import { useSize } from "../../../Context/SizeContext";
+import { useColor } from "../../../Context/ColorContext";
+import { VariantImageUploader } from "../../Global/Components";
+import { prepareProductFormData } from "../../../Helper/PrepareProductFormData";
+import { productFormDataSchema } from "../../../Helper/ProductFormDataSchema";
+import { toast } from "react-toastify";
+import { number } from "zod";
+import { DeleteModal } from "../../Global/Components/DeleteModal";
 
-const categoryOptions = [
-  { label: "Tops", value: "tops" },
-  { label: "Bottoms", value: "bottoms" },
-  { label: "Dresses", value: "dresses" },
-  { label: "Outerwear", value: "outerwear" },
-  { label: "Accessories", value: "accessories" },
-];
-
-const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
-const colorOptions = ["Gold", "Silver", "Rose Gold", "Black", "White", "Green", "Blue", "Red"];
+const generateUniqueId = (): number => Math.floor(Date.now() / Math.floor(Math.random() * 100000))
 
 const createEmptyVariantImage = (): CreatedVariantImage => ({
-  id: crypto.randomUUID(),
+  id: generateUniqueId(),
   file: null,
-  sortOrder: "",
+  imageUrl: "",
+  sortOrder: 0,
 });
 
 const createEmptyVariant = (): CreateVariant => ({
-  id: crypto.randomUUID(),
-  size: "",
-  color: "",
+  id: generateUniqueId(),
+  sizeId: 0,
+  colorId: 0,
   quantity: 0,
   images: [createEmptyVariantImage()],
 });
@@ -51,104 +52,116 @@ const toolbarButtons = [
   { label: "Numbered", icon: ListOrdered, command: "insertOrderedList" },
 ];
 
-const normalizeCategory = (category: string) => category.toLowerCase().replace(/\s+/g, "");
+// const normalizeCategory = (category: string) => category.toLowerCase().replace(/\s+/g, "");
 
-const generateSlug = (name: string): string =>
-  name.toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+// const generateSlug = (name: string): string =>
+//   name.toLowerCase()
+//     .replace(/[^a-z0-9]+/g, "-")
+//     .replace(/^-|-$/g, "");
 
 type SeoLocale = "en" | "ar";
 type SeoField = "slug" | "metaTitle" | "metaDescription";
 
 // this will return the intial values for form data inputs
-const buildInitialFormData = (product: Product): ProductFormData => {
-  const { name, category, price, isActive } = product;
-  const nameAr = `${name} Arabic`;
-  const slugEn = generateSlug(name);
+const buildInitialFormData = (product: ProductFormData): ProductFormData => {
+  // const { name, category, price, isActive } = product;
+  // const nameAr = `${name} Arabic`;
+  // const slugEn = generateSlug(name);
 
   return {
-    nameAr,
-    nameEn: name,
-    category: normalizeCategory(category),
-    descriptionAr: `<p>${nameAr} is part of the ${category} collection.</p>`,
-    descriptionEn: `<p>${name} is part of the ${category} collection.</p>`,
-    slug: slugEn,
-    slugEn,
-    slugAr: "",
-    metaTitle: `${name} | Rock`,
-    metaTitleEn: `${name} | Rock`,
-    metaTitleAr: `${nameAr} | روك`,
-    metaDescription: `${name} from the ${category} category at Rock.`,
-    metaDescriptionEn: `${name} from the ${category} category at Rock.`,
-    metaDescriptionAr: `وصف سيو قصير لمنتج ${nameAr}.`,
-    price,
-    isActive,
-    variants: [createEmptyVariant()],
+    ...product,
+    variants: product.variants.map((variant) => ({
+      ...variant,
+      images: variant.images.map((image) => ({
+        ...image,
+        file: null,
+      })),
+    })),
   };
 };
 
 export const EditProduct = () => {
+  const navigate = useNavigate();
+  const { categoryLookup, getCategoryLookup } = useCategory();
+  const { sizeLookup, getSizeLookup } = useSize();
+  const { colorLookup, getColorLookup } = useColor();
+
+
   const { productId } = useParams();
-  const { state } = useLocation();
-  const { products, getProductById, loading, error } = useProduct();
-
-  // useMemo caches the resolved product while route state or context data changes.
-  const product = useMemo(() => {
-    const stateProduct = (state as { product?: Product })?.product;
-
-    const numericId = Number(productId);
-    if (isNaN(numericId)) return null;
-
-    return stateProduct ?? products.find((p) => p.id === numericId);
-  }, [productId, products, state]);
+  const { getProductById, selectedProduct, updateProduct, loading, error, deleteProdeuct } = useProduct();
+  const [formData, setFormData] = useState<ProductFormData | null>(null);
+  const [isFetchAttempted, setIsFetchAttempted] = useState(false);
+  const [deleting, setDelating] = useState<boolean>(false);
 
   // Text editor.
-  const editorRef = useRef<HTMLDivElement>(null);
-
-  // set intial form data
-  const [formData, setFormData] = useState<ProductFormData | null>(() =>
-    product ? buildInitialFormData(product) : null,
-  );
+  const editorRefAR = useRef<HTMLDivElement>(null);
+  const editorRefEn = useRef<HTMLDivElement>(null);
 
   // Synchronizes form data and the text editor's content whenever the product changes.
   useEffect(() => {
-    if (!productId || product) {
-      return;
-    }
+    const fetchProduct = async () => {
+      if (!productId) return;
 
-    /**
-     * Fetch products on component mount.
-     * We use 'void' to explicitly signal that we're not awaiting this promise here.
-     * The '.catch()' is added to prevent 'Uncaught in Promise' warnings in the console,
-     * as the actual error state is managed globally within the ProductContext.
-     */
-    void getProductById(productId).catch(() => {
-      console.error("Error fetching products. Check ProductContext for details.");
-    });
-  }, [getProductById, product, productId]);
+      try {
+        await getProductById(Number(productId));
+      } catch (err) {
+        console.error("Error fetching product details:", err);
+      } finally {
+        setIsFetchAttempted(true);
+      }
+    };
+
+    fetchProduct();
+  }, [productId, getProductById]);
 
   useEffect(() => {
-    if (!product) {
-      return;
-    }
+    void getCategoryLookup().catch(() => {
+      console.error("Error fetching categories. Check CategoryContext for details.");
+    });
+    void getSizeLookup().catch(() => {
+      console.error("Error fetching sizes. Check SizeContext for details.");
+    });
+    void getColorLookup().catch(() => {
+      console.error("Error fetching colors. Check ColorContext for details.");
+    });
+  }, [getCategoryLookup, getSizeLookup, getColorLookup]);
 
-    const nextFormData = buildInitialFormData(product);
+  useEffect(() => {
+    if (!selectedProduct) return;
+
+    const nextFormData = buildInitialFormData(selectedProduct);
+
     setFormData(nextFormData);
+  }, [selectedProduct]);
 
-    if (editorRef.current) {
-      editorRef.current.innerHTML = nextFormData.descriptionEn;
+  useEffect(() => {
+    if (!formData) return;
+
+    if (editorRefAR.current) {
+      editorRefAR.current.innerHTML = formData.descriptionAr ?? "";
     }
-  }, [product]);
+
+    if (editorRefEn.current) {
+      editorRefEn.current.innerHTML = formData.descriptionEn ?? "";
+    }
+  }, [formData]);
 
   // used to handle changing in input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
+
+    let finalValue: string | number = value;
+
+    if (name === "categoryId" || name === "price") {
+      finalValue = Number(value);
+    }
+
+    console.log(`Input change - Name: ${name}, Value: ${value}`);
     setFormData((current) =>
       current
         ? {
           ...current,
-          [name]: value,
+          [name]: finalValue,
         }
         : current,
     );
@@ -189,13 +202,14 @@ export const EditProduct = () => {
 
   // used in text editor to apply the style on the editor value
   const applyEditorCommand = (command: string, value?: string) => {
-    editorRef.current?.focus();
+    // editorRefAR.current?.focus();
     document.execCommand(command, false, value);
     setFormData((current) =>
       current
         ? {
           ...current,
-          descriptionEn: editorRef.current?.innerHTML ?? "",
+          descriptionAr: editorRefAR.current?.innerHTML ?? "",
+          descriptionEn: editorRefEn.current?.innerHTML ?? "",
         }
         : current,
     );
@@ -207,14 +221,19 @@ export const EditProduct = () => {
       current
         ? {
           ...current,
-          descriptionEn: editorRef.current?.innerHTML ?? "",
+          descriptionEn: editorRefEn.current?.innerHTML ?? "",
+          descriptionAr: editorRefAR.current?.innerHTML ?? "",
         }
         : current,
     );
   };
 
   // used to handle changing in variants values (size, color, quantity, and image)
-  const handleVariantChange = (variantId: string, key: keyof Omit<CreateVariant, "id" | "images">, value: string) => {
+  const handleVariantChange = (variantId: number, key: keyof Omit<CreateVariant, "id" | "images">, value: string | number) => {
+    if (key === "sizeId" || key === "colorId" || key === "quantity") {
+      value = Number(value);
+    }
+
     setFormData((current) =>
       current
         ? {
@@ -240,7 +259,7 @@ export const EditProduct = () => {
   };
 
   // used to remove the variant by id.
-  const handleRemoveVariant = (variantId: string) => {
+  const handleRemoveVariant = (variantId: number) => {
     setFormData((current) =>
       current
         ? {
@@ -254,7 +273,7 @@ export const EditProduct = () => {
   };
 
   // used to add a new variant image
-  const handleAddVariantImage = (variantId: string) => {
+  const handleAddVariantImage = (variantId: number) => {
     setFormData((current) =>
       current
         ? {
@@ -269,7 +288,7 @@ export const EditProduct = () => {
   };
 
   // used to remove variant image by variant id
-  const handleRemoveVariantImage = (variantId: string, imageId: string) => {
+  const handleRemoveVariantImage = (variantId: number, imageId: number) => {
     setFormData((current) =>
       current
         ? {
@@ -293,9 +312,7 @@ export const EditProduct = () => {
   };
 
   // used to handle change in the variant image file value.
-  const handleVariantImageFileChange = (variantId: string, imageId: string, event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
-
+  const handleVariantImageFileChange = (variantId: number, imageId: number, file: File | null) => {
     setFormData((current) =>
       current
         ? {
@@ -318,7 +335,11 @@ export const EditProduct = () => {
   };
 
   // used to handle change in all fields except file in the variant image.
-  const handleVariantImageFieldsChange = (variantId: string, imageId: string, field: keyof CreatedVariantImage, value: string) => {
+  const handleVariantImageFieldsChange = (variantId: number, imageId: number, field: keyof CreatedVariantImage, value: string | number) => {
+    if (field === "sortOrder") {
+      value = Number(value);
+    }
+
     setFormData((current) =>
       current
         ? {
@@ -338,49 +359,74 @@ export const EditProduct = () => {
     );
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!formData) {
+    if (!formData || !productId) {
       return;
     }
 
-    const payload = {
-      productId,
-      ...formData,
-      variants: formData.variants.map((variant) => ({
-        size: variant.size,
-        color: variant.color,
-        quantity: Number(variant.quantity || 0),
-        images: variant.images
-          .filter((image) => image.file)
-          .map((image) => ({
-            name: image.file?.name ?? "",
-            sortOrder: Number(image.sortOrder || 0),
-          })),
-      })),
-    };
+    console.log("Submitting form with data:", formData);
 
-    console.log("Edit product payload:", payload);
+    const result = productFormDataSchema.safeParse(formData);
+
+    if (!result.success) {
+      result.error.issues.forEach((error) => {
+        toast.error(error.message);
+      });
+
+      return;
+    }
+
+    const data = prepareProductFormData(formData);
+
+    try {
+      await updateProduct(Number(productId), data);
+      toast.success("Product updated successfully!");
+      // navigate("/admin/products");
+    } catch (submitError) {
+      console.error("Failed to update product:", submitError);
+    }
   };
 
-  if (loading && !product) {
+  const handleDeleting = async () => {
+    if (!productId) {
+      return;
+    }
+
+    try {
+      await deleteProdeuct(Number(productId));
+      navigate('/admin/products');
+
+      toast.success("Product Deleted successfully!")
+    } catch (error) {
+      console.error("Error deleting product. Check ProductContext for details.", error);
+    }
+  }
+
+  if (!isFetchAttempted && !selectedProduct) {
     return <div className="min-h-screen p-6 text-slate-500">Loading product...</div>;
   }
 
-  if (error && !product) {
+  if (error && !selectedProduct) {
+    console.error("Error state - Error:", error, "Selected Product:", selectedProduct);
     return <div className="min-h-screen p-6 text-rose-600">{error}</div>;
   }
 
-  if (!product || !formData) {
+  if (isFetchAttempted && !selectedProduct) {
+    console.warn("Product not found after fetching. Redirecting to products list.");
     return <Navigate to="/admin/products" replace />;
+  }
+
+  if (!formData) {
+    return <div className="min-h-screen p-6 text-slate-500">Preparing form...</div>;
   }
 
   const totalVariantImages = formData.variants.reduce((total, variant) => total + variant.images.length, 0);
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl p-6 shadow-sm ring-1 ring-slate-200/70">
+      <div className="mx-auto max-w-6xl p-3 sm:p-6  shadow-sm ring-1 ring-slate-200/70">
         <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
             <Link
@@ -393,24 +439,46 @@ export const EditProduct = () => {
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-slate-950">Edit Product</h1>
               <p className="mt-2 text-sm text-slate-500">
-                Updating <span className="font-semibold text-slate-800">{product.name}</span>
+                Updating <span className="font-semibold text-slate-800">{selectedProduct?.nameEn ?? ''}</span>
               </p>
             </div>
           </div>
 
-          <button
-            type="submit"
-            form="edit-product-form"
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color)"
-          >
-            <Save size={16} />
-            Save Changes
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setDelating(true)}
+              disabled={loading}
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-red-700 hover:bg-red-800 px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <Trash2 size={16} />
+              {loading ? "Deleting..." : "Delete"}
+            </button>
+            <button
+              type="submit"
+              form="edit-product-form"
+              disabled={loading}
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <Save size={16} />
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+
         </div>
+
+        {deleting &&
+          <DeleteModal
+            type="product"
+            name={formData.nameEn}
+            canselFunction={() => setDelating(false)}
+            handleDeleteProduct={handleDeleting}
+            isDeleting={loading}
+          />
+        }
 
         <form id="edit-product-form" onSubmit={handleSubmit} className="space-y-8">
           <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-            <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-6">
+            <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-3 sm:p-6">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">Product Details</h2>
               </div>
@@ -441,65 +509,125 @@ export const EditProduct = () => {
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Category</span>
                   <select
-                    name="category"
-                    value={formData.category}
+                    name="categoryId"
+                    value={formData.categoryId}
                     onChange={handleInputChange}
                     className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                   >
-                    {categoryOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    <option value={0}>Select category</option>
+                    {categoryLookup.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.name}
                       </option>
                     ))}
                   </select>
                 </label>
+
+                <label className="space-y-2">
+                  <span className="text-sm font-medium text-slate-700">Price</span>
+                  <div className="flex w-full overflow-hidden rounded-[10px] border border-slate-200 bg-slate-50 transition-all duration-200 focus-within:border-teal-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-teal-100">
+                    <span className="flex items-center border-r border-slate-200 px-4 text-sm font-medium text-slate-500">
+                      EGP
+                    </span>
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      placeholder="0.00"
+                      min="0"
+                      step="1"
+                      required
+                      className="w-full bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400"
+                    />
+                  </div>
+                </label>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-sm font-medium text-slate-700">Description</label>
+              <div className="flex items-center justify-between gap-4 flex-col md:flex-row">
+                {/* DescriptionEn */}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Description in English</label>
+                    </div>
+                  </div>
+
+                  <div className="overflow-hidden rounded-[10px] border border-slate-200 bg-white shadow-sm">
+                    <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                      {toolbarButtons.map((button) => {
+                        const Icon = button.icon;
+
+                        return (
+                          <button
+                            key={button.label}
+                            type="button"
+                            onClick={() => applyEditorCommand(button.command, button.value)}
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
+                            aria-label={button.label}
+                            title={button.label}
+                          >
+                            <Icon size={16} />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div
+                      ref={editorRefEn}
+                      contentEditable
+                      suppressContentEditableWarning
+                      onInput={handleDescriptionChange}
+                      className="min-h-56 px-4 py-4 text-sm leading-7 text-slate-700 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_h3]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
+                      data-placeholder="Write a rich description for your product..."
+                    />
                   </div>
                 </div>
 
-                <div className="overflow-hidden rounded-[10px] border border-slate-200 bg-white shadow-sm">
-                  <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
-                    {toolbarButtons.map((button) => {
-                      const Icon = button.icon;
-
-                      return (
-                        <button
-                          key={button.label}
-                          type="button"
-                          onClick={() => applyEditorCommand(button.command, button.value)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
-                          aria-label={button.label}
-                          title={button.label}
-                        >
-                          <Icon size={16} />
-                        </button>
-                      );
-                    })}
+                {/* DescriptionAr */}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Description in Arabic</label>
+                    </div>
                   </div>
 
-                  <div
-                    ref={editorRef}
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={handleDescriptionChange}
-                    className="min-h-56 px-4 py-4 text-sm leading-7 text-slate-700 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_h3]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
-                    data-placeholder="Write a rich description for your product..."
-                  />
+                  <div className="overflow-hidden rounded-[10px] border border-slate-200 bg-white shadow-sm">
+                    <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                      {toolbarButtons.map((button) => {
+                        const Icon = button.icon;
+
+                        return (
+                          <button
+                            key={button.label}
+                            type="button"
+                            onClick={() => applyEditorCommand(button.command, button.value)}
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
+                            aria-label={button.label}
+                            title={button.label}
+                          >
+                            <Icon size={16} />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div
+                      ref={editorRefAR}
+                      contentEditable
+                      suppressContentEditableWarning
+                      onInput={handleDescriptionChange}
+                      className="min-h-56 px-4 py-4 text-sm leading-7 text-slate-700 outline-none empty:before:pointer-events-none empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_h3]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
+                      data-placeholder="Write a rich description for your product..."
+                    />
+                  </div>
                 </div>
               </div>
 
-              <section className="space-y-5 rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+              <section className="space-y-5 rounded-[10px] border border-slate-200 bg-white p-3 sm:p-6 shadow-sm">
                 <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-lg font-semibold text-slate-900">Variants</h2>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Add size, color, quantity, and as many ordered images as each variant needs.
-                    </p>
                   </div>
 
                   <button
@@ -518,9 +646,6 @@ export const EditProduct = () => {
                       <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <h3 className="text-base font-semibold text-slate-900">Variant {variantIndex + 1}</h3>
-                          <p className="mt-1 text-sm text-slate-500">
-                            Configure stock details and attach variant-specific images.
-                          </p>
                         </div>
 
                         <button
@@ -537,14 +662,14 @@ export const EditProduct = () => {
                         <label className="space-y-2">
                           <span className="text-sm font-medium text-slate-700">Size</span>
                           <select
-                            value={variant.size}
-                            onChange={(event) => handleVariantChange(variant.id, "size", event.target.value)}
+                            value={variant.sizeId}
+                            onChange={(event) => handleVariantChange(variant.id, "sizeId", event.target.value)}
                             className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                           >
-                            <option value="">Select size</option>
-                            {sizeOptions.map((size) => (
-                              <option key={size} value={size}>
-                                {size}
+                            <option value={0}>Select size</option>
+                            {sizeLookup.map((size) => (
+                              <option key={size.id} value={size.id}>
+                                {size.name}
                               </option>
                             ))}
                           </select>
@@ -553,14 +678,14 @@ export const EditProduct = () => {
                         <label className="space-y-2">
                           <span className="text-sm font-medium text-slate-700">Color</span>
                           <select
-                            value={variant.color}
-                            onChange={(event) => handleVariantChange(variant.id, "color", event.target.value)}
+                            value={variant.colorId}
+                            onChange={(event) => handleVariantChange(variant.id, "colorId", event.target.value)}
                             className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                           >
-                            <option value="">Select color</option>
-                            {colorOptions.map((color) => (
-                              <option key={color} value={color}>
-                                {color}
+                            <option value={0}>Select color</option>
+                            {colorLookup.map((color) => (
+                              <option key={color.id} value={color.id}>
+                                {color.name}
                               </option>
                             ))}
                           </select>
@@ -603,33 +728,27 @@ export const EditProduct = () => {
                           {variant.images.map((image, imageIndex) => (
                             <div
                               key={image.id}
-                              className="grid gap-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4 md:grid-cols-[1.3fr_0.7fr_auto]"
+                              className="grid gap-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4 md:grid-cols-[1.3fr_1fr_auto]"
                             >
-                              <label className="space-y-2">
-                                <span className="text-sm font-medium text-slate-700">Image {imageIndex + 1}</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(event) => handleVariantImageFileChange(variant.id, image.id, event)}
-                                  className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700"
-                                />
-                                {image.file ? (
-                                  <span className="block text-xs text-slate-500">{image.file.name}</span>
-                                ) : null}
-                              </label>
+                              <VariantImageUploader
+                                image={image}
+                                imageIndex={imageIndex}
+                                variantId={variant.id}
+                                imageUrl={image.imageUrl}
+                                onFileSelect={handleVariantImageFileChange}
+                              />
 
                               <label className="space-y-2">
                                 <span className="text-sm font-medium text-slate-700">Sort Order</span>
                                 <input
                                   name="sortOrder"
                                   type="number"
-                                  min="0"
-                                  step="1"
+                                  min={0}
+                                  step={1}
                                   value={image.sortOrder}
                                   onChange={(event) =>
                                     handleVariantImageFieldsChange(variant.id, image.id, event.target.name as keyof CreatedVariantImage, event.target.value)
                                   }
-                                  placeholder="0"
                                   className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                                 />
                               </label>
@@ -657,11 +776,10 @@ export const EditProduct = () => {
             <div className="space-y-6">
               <SeoPricingCard
                 values={formData}
-                onPriceChange={handleInputChange}
                 onSeoChange={handleSeoFieldChange}
               />
 
-              <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+              <section className="rounded-[10px] border border-slate-200 bg-white p-3 sm:p-6 shadow-sm">
                 <div>
                   <h2 className="text-lg font-semibold text-slate-900">Variant Summary</h2>
                   <p className="mt-1 text-sm text-slate-500">
