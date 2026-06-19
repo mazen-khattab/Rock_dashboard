@@ -18,17 +18,21 @@ import { SeoPricingCard } from "../Shared/SeoPricingCard";
 import { useCategory } from "../../../Context/CategoryContext";
 import { useSize } from "../../../Context/SizeContext";
 import { useColor } from "../../../Context/ColorContext";
+import { toast } from 'react-toastify';
+import { VariantImageUploader } from "../../Global/Components";
+import { prepareProductFormData } from "../../../Helper/PrepareProductFormData";
+import { productFormDataSchema } from "../../../Helper/ProductFormDataSchema";
 
 const createEmptyVariantImage = (): CreatedVariantImage => ({
-  id: crypto.randomUUID(),
+  id: Math.floor(Date.now() / Math.floor(Math.random() * 100000)), // Using timestamp as a simple unique ID for images
   file: null,
-  sortOrder: "",
+  sortOrder: 0,
 });
 
 const createEmptyVariant = (): CreateVariant => ({
-  id: crypto.randomUUID(),
-  size: "",
-  color: "",
+  id: Math.floor(Date.now() / Math.floor(Math.random() * 100000)), // Using timestamp as a simple unique ID for variants
+  sizeId: 0,
+  colorId: 0,
   quantity: 0,
   images: [createEmptyVariantImage()],
 });
@@ -45,10 +49,6 @@ const toolbarButtons = [
 
 type SeoLocale = "en" | "ar";
 type SeoField = "slug" | "metaTitle" | "metaDescription";
-
-const appendFormValue = (data: FormData, key: string, value: string | number | boolean) => {
-data.append(key, String(value));
-};
 
 export const CreateProduct = () => {
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ export const CreateProduct = () => {
     metaTitleAr: "",
     metaDescriptionEn: "",
     metaDescriptionAr: "",
-    category: 0,
+    categoryId: 0,
     isActive: true,
     variants: [createEmptyVariant()],
   });
@@ -79,7 +79,7 @@ export const CreateProduct = () => {
 
   useEffect(() => {
     void getCategoryLookup().catch(() => {
-      console.error("Error fetching products. Check ProductContext for details.");
+      console.error("Error fetching categories. Check CategoryContext for details.");
     });
     void getSizeLookup().catch(() => {
       console.error("Error fetching sizes. Check SizeContext for details.");
@@ -92,9 +92,16 @@ export const CreateProduct = () => {
   // used to handle changing in input value
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
+
+    let finalValue: string | number = value;
+    
+    if (name === "categoryId" || name === "price") {
+      finalValue = Number(value);
+    }
+
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: finalValue,
     }));
   };
 
@@ -147,7 +154,11 @@ export const CreateProduct = () => {
   };
 
   // used to handle changing in variants values (size, color, quantity, and image)
-  const handleVariantChange = (variantId: string, key: keyof Omit<CreateVariant, "id" | "images">, value: string) => {
+  const handleVariantChange = (variantId: number, key: keyof Omit<CreateVariant, "id" | "images">, value: string | number) => {
+    if (key === "sizeId" || key === "colorId" || key === "quantity") {
+      value = Number(value);
+    }
+
     setFormData((current) => ({
       ...current,
       variants: current.variants.map((variant) =>
@@ -165,7 +176,7 @@ export const CreateProduct = () => {
   };
 
   // used to remove the variant by id.
-  const handleRemoveVariant = (variantId: string) => {
+  const handleRemoveVariant = (variantId: number) => {
     setFormData((current) => ({
       ...current,
       variants: current.variants.length === 1
@@ -175,7 +186,7 @@ export const CreateProduct = () => {
   };
 
   // used to add a new variant image
-  const handleAddVariantImage = (variantId: string) => {
+  const handleAddVariantImage = (variantId: number) => {
     setFormData((current) => ({
       ...current,
       variants: current.variants.map((variant) => variant.id === variantId
@@ -186,7 +197,7 @@ export const CreateProduct = () => {
   };
 
   // used to remove variant image by variant id
-  const handleRemoveVariantImage = (variantId: string, imageId: string) => {
+  const handleRemoveVariantImage = (variantId: number, imageId: number) => {
     setFormData((current) => ({
       ...current,
       variants: current.variants.map((variant) => {
@@ -206,9 +217,7 @@ export const CreateProduct = () => {
   };
 
   // used to handle change in the variant image file value.
-  const handleVariantImageFileChange = (variantId: string, imageId: string, event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
-
+  const handleVariantImageFileChange = (variantId: number, imageId: number, file: File | null) => {
     setFormData((current) => ({
       ...current,
       variants: current.variants.map((variant) => {
@@ -227,7 +236,11 @@ export const CreateProduct = () => {
   };
 
   // used to handle change in all fields except file in the variant image.
-  const handleVariantImageFieldsChange = (variantId: string, imageId: string, field: keyof CreatedVariantImage, value: any) => {
+  const handleVariantImageFieldsChange = (variantId: number, imageId: number, field: keyof CreatedVariantImage, value: any) => {
+    if (field === "sortOrder") {
+      value = Number(value);
+    }
+
     setFormData((current) => ({
       ...current,
       variants: current.variants.map((variant) =>
@@ -243,43 +256,28 @@ export const CreateProduct = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData();
 
-    appendFormValue(data, "NameAr", formData.nameAr);
-    appendFormValue(data, "NameEn", formData.nameEn);
-    appendFormValue(data, "DescriptionAr", formData.descriptionAr);
-    appendFormValue(data, "DescriptionEn", formData.descriptionEn);
-    appendFormValue(data, "SlugAr", formData.slugAr);
-    appendFormValue(data, "SlugEn", formData.slugEn);
-    appendFormValue(data, "MetaTitleAr", formData.metaTitleAr);
-    appendFormValue(data, "MetaTitleEn", formData.metaTitleEn);
-    appendFormValue(data, "MetaDescriptionAr", formData.metaDescriptionAr);
-    appendFormValue(data, "MetaDescriptionEn", formData.metaDescriptionEn);
-    appendFormValue(data, "CategoryId", Number(formData.category));
-    appendFormValue(data, "Price", Number(formData.price));
-    appendFormValue(data, "IsActive", formData.isActive);
+    console.log("Submitting form with data:", formData);
 
-    formData.variants.forEach((variant, variantIndex) => {
-      appendFormValue(data, `Variants[${variantIndex}].SizeId`, Number(variant.size));
-      appendFormValue(data, `Variants[${variantIndex}].ColorId`, Number(variant.color));
-      appendFormValue(data, `Variants[${variantIndex}].Quantity`, Number(variant.quantity || 0));
+    const result = productFormDataSchema.safeParse(formData);
 
-      variant.images.forEach((image, imageIndex) => {
-        if (image.file) {
-          data.append(`Variants[${variantIndex}].Images[${imageIndex}].File`, image.file);
-        }
+    if (!result.success) {
+      const firstError = result.error.issues;
 
-        appendFormValue(
-          data,
-          `Variants[${variantIndex}].Images[${imageIndex}].SortOrder`,
-          Number(image.sortOrder || 0),
-        );
+      firstError.forEach(error => {
+        toast.error(error.message);
       });
-    });
+
+      return;
+    }
+
+    const data = prepareProductFormData(formData);
 
     try {
-      await createProduct(data);
-      // navigate("/admin/products");
+      const product = await createProduct(data);
+      navigate(`/admin/products/edit/${product.id}`);
+
+      toast.success("Product created successfully!");
     } catch (submitError) {
       console.error("Failed to create product:", submitError);
     }
@@ -289,7 +287,7 @@ export const CreateProduct = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl p-6 shadow-sm ring-1 ring-slate-200/70">
+      <div className="mx-auto max-w-6xl p-3 sm:p-6  shadow-sm ring-1 ring-slate-200/70">
 
         {/* header */}
         <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
@@ -323,7 +321,7 @@ export const CreateProduct = () => {
           ) : null}
 
           <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-            <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-6">
+            <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-3 sm:p-6">
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">Product Details</h2>
                 <p className="mt-1 text-sm text-slate-500">
@@ -336,6 +334,7 @@ export const CreateProduct = () => {
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Name in Arabic</span>
                   <input
+                    required
                     type="text"
                     name="nameAr"
                     value={formData.nameAr}
@@ -347,6 +346,7 @@ export const CreateProduct = () => {
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Name in English</span>
                   <input
+                    required
                     type="text"
                     name="nameEn"
                     value={formData.nameEn}
@@ -355,27 +355,12 @@ export const CreateProduct = () => {
                   />
                 </label>
 
-                {/* <label className="space-y-2">
-                  <span className="text-sm font-medium text-slate-700">Language</span>
-                  <select
-                    name="language"
-                    value={formData.language}
-                    onChange={handleInputChange}
-                    className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
-                  >
-                    {languageOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label> */}
-
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">Category</span>
                   <select
-                    name="category"
-                    value={formData.category}
+                    name="categoryId"
+                    required
+                    value={formData.categoryId}
                     onChange={handleInputChange}
                     className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                   >
@@ -402,6 +387,7 @@ export const CreateProduct = () => {
                       placeholder="0.00"
                       min="0"
                       step="1"
+                      required
                       className="w-full bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400"
                     />
                   </div>
@@ -409,7 +395,7 @@ export const CreateProduct = () => {
 
               </div>
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 flex-col md:flex-row">
                 {/* DescriptionEn */}
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
@@ -489,7 +475,7 @@ export const CreateProduct = () => {
                 </div>
               </div>
 
-              <section className="space-y-5 rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+              <section className="space-y-5 rounded-[10px] border border-slate-200 bg-white p-3 sm:p-6 shadow-sm">
                 <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-lg font-semibold text-slate-900">Variants</h2>
@@ -527,8 +513,8 @@ export const CreateProduct = () => {
                         <label className="space-y-2">
                           <span className="text-sm font-medium text-slate-700">Size</span>
                           <select
-                            value={variant.size}
-                            onChange={(event) => handleVariantChange(variant.id, "size", event.target.value)}
+                            value={variant.sizeId}
+                            onChange={(event) => handleVariantChange(variant.id, "sizeId", event.target.value)}
                             className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                           >
                             <option value="">Select size</option>
@@ -543,8 +529,8 @@ export const CreateProduct = () => {
                         <label className="space-y-2">
                           <span className="text-sm font-medium text-slate-700">Color</span>
                           <select
-                            value={variant.color}
-                            onChange={(event) => handleVariantChange(variant.id, "color", event.target.value)}
+                            value={variant.colorId}
+                            onChange={(event) => handleVariantChange(variant.id, "colorId", event.target.value)}
                             className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                           >
                             <option value="">Select color</option>
@@ -590,20 +576,14 @@ export const CreateProduct = () => {
                           {variant.images.map((image, imageIndex) => (
                             <div
                               key={image.id}
-                              className="grid gap-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4 md:grid-cols-[1.3fr_0.7fr_auto]"
+                              className="grid gap-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4 md:grid-cols-[1.3fr_1fr_auto]"
                             >
-                              <label className="space-y-2">
-                                <span className="text-sm font-medium text-slate-700">Image {imageIndex + 1}</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(event) => handleVariantImageFileChange(variant.id, image.id, event)}
-                                  className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700"
-                                />
-                                {image.file ? (
-                                  <span className="block text-xs text-slate-500">{image.file.name}</span>
-                                ) : null}
-                              </label>
+                              <VariantImageUploader
+                                image={image}
+                                imageIndex={imageIndex}
+                                variantId={variant.id}
+                                onFileSelect={handleVariantImageFileChange}
+                              />
 
                               <label className="space-y-2">
                                 <span className="text-sm font-medium text-slate-700">Sort Order</span>
@@ -647,7 +627,7 @@ export const CreateProduct = () => {
                 onSeoChange={handleSeoFieldChange}
               />
 
-              <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+              <section className="rounded-[10px] border border-slate-200 bg-white p-3 sm:p-6 shadow-sm">
                 <div>
                   <h2 className="text-lg font-semibold text-slate-900">Variant Summary</h2>
                   <p className="mt-1 text-sm text-slate-500">

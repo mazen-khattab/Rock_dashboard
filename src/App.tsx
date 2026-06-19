@@ -17,6 +17,7 @@ import {
   ShowStockManagement,
 } from "./Components/StockManagement";
 import "./App.css";
+import { ToastContainer } from "react-toastify";
 
 function AuthLayout() {
   return <Outlet />;
@@ -90,6 +91,16 @@ function App() {
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+        draggable
+      />
     </Router>
   );
 }

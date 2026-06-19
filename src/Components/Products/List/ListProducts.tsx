@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Edit, Trash2, ChevronRight, ChevronsLeft, ChevronLeft, ChevronsRight } from 'lucide-react';
-import "./ListProducts.css";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useProduct } from "../../../Context/ProductContext";
+import type { Product } from '../../../Types/Product';
+import { DeleteModal } from '../../Global/Components/DeleteModal';
 
 
 export const ListProducts = () => {
-  const { products, loading, error, totalProductCount, getAllProducts } = useProduct();
+  const { products, loading, error, totalProductCount, getAllProducts, deleteProdeuct } = useProduct();
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     /**
      * Fetch products on component mount.
@@ -25,17 +29,41 @@ export const ListProducts = () => {
     });
   }, [getAllProducts, currentPage, rowsPerPage]);
 
-  useEffect(() => {
-    const nextTotalPages = Math.max(1, Math.ceil(totalProductCount / rowsPerPage));
+  const totalPages = Math.max(1, Math.ceil(totalProductCount / rowsPerPage));
 
-    if (currentPage > nextTotalPages) {
-      setCurrentPage(nextTotalPages);
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
     }
-  }, [currentPage, totalProductCount, rowsPerPage]);
+  }, [currentPage, totalPages]); 
 
   const totalRows = totalProductCount;
-  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
   const currentProducts = products;
+
+  const handleProductRowClick = (productId: number) => {
+    navigate(`/admin/products/edit/${productId}`);
+  };
+
+  const canselDeleteProduct = () => {
+    setProductToDelete(null);
+  }
+
+  const handleDeleteProduct = async () => {
+    if (!productToDelete) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      await deleteProdeuct(productToDelete.id);
+      setProductToDelete(null);
+    } catch (error) {
+      console.error("Error deleting product. Check ProductContext for details.", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen rounded-3xl p-6 text-slate-800 shadow-sm">
@@ -144,7 +172,19 @@ export const ListProducts = () => {
               const availableToSell = product.available;
 
               return (
-                <tr key={product.id} className="border-b border-slate-100 transition-colors hover:bg-slate-50">
+                <tr
+                  key={product.id}
+                  onClick={() => handleProductRowClick(product.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleProductRowClick(product.id);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="link"
+                  className="cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50 focus:bg-slate-50 focus:outline-none"
+                >
                   <td className="px-4 py-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-500">
                       {product.imageUrl ? (
@@ -189,7 +229,7 @@ export const ListProducts = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" onClick={(event) => event.stopPropagation()}>
                       <Link
                         to={`edit/${product.id}`}
                         state={{ product }}
@@ -200,8 +240,8 @@ export const ListProducts = () => {
                       <button
                         type="button"
                         className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 cursor-pointer"
-                        disabled
-                        title="Delete action is not connected yet."
+                        onClick={() => setProductToDelete(product)}
+                        title="Delete product"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -272,6 +312,16 @@ export const ListProducts = () => {
           </div>
         </div>
       </div>
+
+      {productToDelete && (
+        <DeleteModal
+          type="product"
+          name={productToDelete.name}
+          canselFunction={canselDeleteProduct}
+          handleDeleteProduct={handleDeleteProduct}
+          isDeleting={isDeleting}
+        />
+      )}
 
     </div>
   );
