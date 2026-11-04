@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Menu, X, User } from "lucide-react";
-import logo from "../../assets/Rock_logo.jpg";
+import logo from "../../assets/photo_2026-11-04_19-43-43.jpg";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../Context/useAuth";
 import { LogoutButton } from "../Auth/LogoutButton";
@@ -121,8 +121,8 @@ export const Sidebar = () => {
             >
                 <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
                     <NavLink to="/admin" className="flex items-center gap-3" onClick={() => setIsMobileOpen(false)}>
-                        <img src={logo} alt="Rock logo" className="h-9 w-9 rounded-xl object-cover shadow-xs" />
-                        <span className="text-2xl font-extrabold tracking-tight text-slate-900">Rock</span>
+                        <img src={logo} alt="Keef Wear logo" className="h-9 w-9 rounded-xl object-cover shadow-xs" />
+                        <span className="text-2xl font-extrabold tracking-tight text-slate-900">Keef Wear</span>
                     </NavLink>
 
                     <button
