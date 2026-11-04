@@ -49,7 +49,7 @@ export const CreateStockManagement = () => {
   // It retrieves the complete data of the selected product from the list based on the ID, 
   // and only perform this operation when the ID changes.
   const selectedProduct = useMemo(
-    () => INVENTORY_PRODUCTS.find((product) => product.id === selectedProductId) ?? null,
+    () => INVENTORY_PRODUCTS.find((product) => String(product.id) === selectedProductId) ?? null,
     [selectedProductId]
   );
 
@@ -63,9 +63,9 @@ export const CreateStockManagement = () => {
       return INVENTORY_PRODUCTS;
     }
 
-    // search for the searched value in name, sku, and category of the products
+    // search for the searched value in name and category of the products
     return INVENTORY_PRODUCTS.filter((product) =>
-      [product.name, product.sku, product.category].some((value) => value.toLowerCase().includes(searchValue)),
+      [product.name, product.category].some((value) => value.toLowerCase().includes(searchValue)),
     );
   }, [productSearch]);
 
@@ -103,7 +103,7 @@ export const CreateStockManagement = () => {
 
   // Sets the selected product, updates search text, and closes the dropdown menu.
   const handleSelectProduct = (product: InventoryProduct) => {
-    setSelectedProductId(product.id);
+    setSelectedProductId(String(product.id));
     setVariantRows([createEmptyRow()]);
     setProductSearch(product.name);
     setIsProductMenuOpen(false);
@@ -160,7 +160,7 @@ export const CreateStockManagement = () => {
     }
 
     const payload = {
-      productId: selectedProduct.id,
+      productId: String(selectedProduct.id),
       price: isPriceVisible ? Number(price) : null,
       type: transactionType,
       note: note.trim(),
@@ -172,11 +172,11 @@ export const CreateStockManagement = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl p-6 shadow-sm ring-1 ring-slate-200/70">
+    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800 shadow-sm">
+      <div className="mx-auto max-w-6xl rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-3">
+        <div className="mb-6 sm:mb-8 flex flex-col gap-4 border-b border-slate-200 pb-5 sm:pb-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2 sm:space-y-3">
             <Link
               to="/admin/stock-management"
               className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
@@ -185,7 +185,8 @@ export const CreateStockManagement = () => {
               Back to Stock Management
             </Link>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950">Create Transaction</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Create Transaction</h1>
+              <p className="mt-1 text-xs sm:text-sm text-slate-500">Record a new inventory movement or stock adjustment.</p>
             </div>
           </div>
 
@@ -193,7 +194,7 @@ export const CreateStockManagement = () => {
             type="submit"
             form="create-stock-transaction-form"
             disabled={isSubmitDisabled}
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex w-full sm:w-auto cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-2.5 sm:py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus size={16} />
             Submit Transaction
@@ -201,19 +202,19 @@ export const CreateStockManagement = () => {
         </div>
 
         {/* Form body */}
-        <form id="create-stock-transaction-form" onSubmit={handleSubmit} className="space-y-8">
+        <form id="create-stock-transaction-form" onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
             {/* Transaction Details */}
-            <div className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-6">
+            <div className="space-y-5 sm:space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/80 p-4 sm:p-6">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">Transaction Details</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">Transaction Details</h2>
               </div>
 
-              <div className={`grid gap-5 ${isPriceVisible ? "md:grid-cols-2 xl:grid-cols-[1.25fr_1fr_1fr]" : "md:grid-cols-2 xl:grid-cols-[1.4fr_1fr]"}`}>
+              <div className={`grid gap-4 sm:gap-5 ${isPriceVisible ? "md:grid-cols-2 xl:grid-cols-[1.25fr_1fr_1fr]" : "md:grid-cols-2 xl:grid-cols-[1.4fr_1fr]"}`}>
                 <Field label="Product">
                   <div ref={productDropdownRef} className="relative">
-                    <div className="flex items-center rounded-[10px] border border-slate-200 bg-white px-4 py-4 h-14 text-slate-900 transition focus-within:border-(--main-color) focus-within:ring-4 focus-within:ring-[#d9f1ee]">
-                      <Search size={16} className="mr-3 text-slate-400" />
+                    <div className="flex items-center rounded-[10px] border border-slate-200 bg-white px-3.5 sm:px-4 py-2.5 sm:py-3 h-11 sm:h-12 text-slate-900 transition focus-within:border-(--main-color) focus-within:ring-4 focus-within:ring-[#d9f1ee]">
+                      <Search size={16} className="mr-2.5 text-slate-400 shrink-0" />
                       <input
                         type="text"
                         value={productSearch}
@@ -225,7 +226,7 @@ export const CreateStockManagement = () => {
                         }}
                         onFocus={() => setIsProductMenuOpen(true)}
                         placeholder="Search products"
-                        className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 outline-none placeholder:text-slate-400"
                       />
 
                       {productSearch ? (
@@ -237,7 +238,7 @@ export const CreateStockManagement = () => {
                             setIsProductMenuOpen(false);
                             setErrorMessage("");
                           }}
-                          className="ml-3 inline-flex h-6 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                          className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
                           aria-label="Clear product search"
                         >
                           <X size={14} />
@@ -253,21 +254,21 @@ export const CreateStockManagement = () => {
                               key={product.id}
                               type="button"
                               onClick={() => handleSelectProduct(product)}
-                              className="flex w-full items-start justify-between rounded-[10px] px-3 py-3 text-left transition hover:bg-slate-50"
+                              className="flex w-full items-start justify-between rounded-[10px] px-3 py-2.5 text-left transition hover:bg-slate-50"
                             >
                               <div>
-                                <div className="text-sm font-semibold text-slate-900">{product.name}</div>
-                                <div className="mt-1 text-xs text-slate-500">
-                                  {product.category} | {product.sku}
+                                <div className="text-xs sm:text-sm font-semibold text-slate-900">{product.name}</div>
+                                <div className="mt-0.5 text-xs text-slate-500">
+                                  {product.category} | #{product.id}
                                 </div>
                               </div>
-                              <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-500">
-                                {product.status}
+                              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] sm:text-[11px] text-slate-500">
+                                {product.isActive ? "Active" : "Inactive"}
                               </span>
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-6 text-center text-sm text-slate-500">
+                          <div className="px-3 py-6 text-center text-xs sm:text-sm text-slate-500">
                             No products matched your search.
                           </div>
                         )}
@@ -278,10 +279,7 @@ export const CreateStockManagement = () => {
 
                 {isPriceVisible ? (
                   <Field label="Unit Cost">
-                    <div className="flex min-h-13 w-full overflow-hidden rounded-[10px] border border-slate-200 bg-white transition focus-within:border-(--main-color) focus-within:ring-4 focus-within:ring-[#d9f1ee]">
-                      {/* <span className="flex min-w-24 items-center justify-center border-r border-slate-200 bg-slate-50 px-5 text-sm font-semibold text-slate-600">
-                        EGP
-                      </span> */}
+                    <div className="flex h-11 sm:h-12 w-full overflow-hidden rounded-[10px] border border-slate-200 bg-white transition focus-within:border-(--main-color) focus-within:ring-4 focus-within:ring-[#d9f1ee]">
                       <input
                         type="number"
                         min="0"
@@ -292,7 +290,7 @@ export const CreateStockManagement = () => {
                           setErrorMessage("");
                         }}
                         placeholder="0.00"
-                        className="w-full bg-white px-5 py-3 text-base font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                        className="w-full bg-white px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base font-medium text-slate-900 outline-none placeholder:text-slate-400"
                       />
                     </div>
                   </Field>
@@ -305,7 +303,7 @@ export const CreateStockManagement = () => {
                       setTransactionType(event.target.value as TransactionType);
                       setErrorMessage("");
                     }}
-                    className="min-h-13 w-full rounded-[10px] border border-slate-200 bg-white px-5 py-3 text-base font-medium text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
+                    className="h-11 sm:h-12 w-full rounded-[10px] border border-slate-200 bg-white px-3.5 sm:px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                   >
                     {TRANSACTION_TYPE_OPTIONS.map((option) => (
                       <option key={option} value={option}>
@@ -316,11 +314,11 @@ export const CreateStockManagement = () => {
                 </Field>
               </div>
 
-              <div className="space-y-5 rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-4 sm:space-y-5 rounded-[10px] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+                <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-slate-900">Variants</h2>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <h2 className="text-base sm:text-lg font-semibold text-slate-900">Variants</h2>
+                    <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
                       Sizes and colors update automatically based on the selected product.
                     </p>
                   </div>
@@ -328,26 +326,26 @@ export const CreateStockManagement = () => {
                   <button
                     type="button"
                     onClick={handleAddRow}
-                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-(--main-color) hover:bg-white hover:text-(--main-color)"
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-slate-200 bg-slate-50 px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 transition hover:border-(--main-color) hover:bg-white hover:text-(--main-color)"
                   >
                     <Plus size={16} />
-                    Add
+                    Add Row
                   </button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3.5 sm:space-y-4">
                   {variantRows.map((row, index) => {
                     return (
                       <div
                         key={row.id}
-                        className="grid gap-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4 md:grid-cols-[1fr_1fr_0.8fr_auto]">
-
+                        className="grid gap-3 sm:gap-4 rounded-[10px] border border-slate-200 bg-slate-50/70 p-3.5 sm:p-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-[1fr_1fr_0.8fr_auto]"
+                      >
                         <Field label={`Size ${index + 1}`}>
                           <select
                             value={row.size}
                             onChange={(event) => handleRowChange(row.id, "size", event.target.value)}
                             disabled={!selectedProduct}
-                            className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee] disabled:cursor-not-allowed disabled:bg-slate-100"
+                            className="w-full rounded-[10px] border border-slate-200 bg-white px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee] disabled:cursor-not-allowed disabled:bg-slate-100"
                           >
                             <option value="">Select size</option>
                             {selectedProduct?.sizes.map((size) => (
@@ -363,7 +361,7 @@ export const CreateStockManagement = () => {
                             value={row.color}
                             onChange={(event) => handleRowChange(row.id, "color", event.target.value)}
                             disabled={!selectedProduct}
-                            className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee] disabled:cursor-not-allowed disabled:bg-slate-100"
+                            className="w-full rounded-[10px] border border-slate-200 bg-white px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-slate-900 outline-none transition focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee] disabled:cursor-not-allowed disabled:bg-slate-100"
                           >
                             <option value="">Select color</option>
                             {selectedProduct?.colors.map((color) => (
@@ -382,7 +380,7 @@ export const CreateStockManagement = () => {
                             value={row.quantity}
                             onChange={(event) => handleRowChange(row.id, "quantity", event.target.value)}
                             placeholder="0"
-                            className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
+                            className="w-full rounded-[10px] border border-slate-200 bg-white px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-(--main-color) focus:ring-4 focus:ring-[#d9f1ee]"
                           />
                         </Field>
 
@@ -390,77 +388,78 @@ export const CreateStockManagement = () => {
                           <button
                             type="button"
                             onClick={() => handleRemoveRow(row.id)}
-                            className="inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-[10px] border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                            className="inline-flex h-9 sm:h-10 w-full md:w-10 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] border border-red-200 bg-red-50 text-xs sm:text-sm text-red-600 transition hover:bg-red-100"
                             aria-label={`Delete variant row ${index + 1}`}
                           >
                             <Trash2 size={16} />
+                            <span className="md:hidden">Remove</span>
                           </button>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
             </div>
 
             {/* Transaction Summary */}
-            <div className="space-y-6">
-              <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="space-y-5 sm:space-y-6">
+              <section className="rounded-[10px] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
                 <div className="flex items-start gap-3">
-                  <div className="rounded-[10px] bg-[color:var(--main-color)]/10 p-3 text-(--main-color)">
+                  <div className="rounded-[10px] bg-[color:var(--main-color)]/10 p-2.5 sm:p-3 text-(--main-color)">
                     <PackageSearch size={18} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-slate-900">Transaction Summary</h2>
+                    <h2 className="text-base sm:text-lg font-semibold text-slate-900">Transaction Summary</h2>
                   </div>
                 </div>
 
-                <div className="mt-6 space-y-5">
-                  <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-4">
-                    <div className="text-sm text-slate-500">Selected product</div>
-                    <div className="mt-2 text-lg font-semibold text-slate-900">
+                <div className="mt-5 sm:mt-6 space-y-4 sm:space-y-5">
+                  <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3.5 sm:p-4">
+                    <div className="text-xs sm:text-sm text-slate-500">Selected product</div>
+                    <div className="mt-1.5 sm:mt-2 text-base sm:text-lg font-semibold text-slate-900">
                       {selectedProduct?.name ?? "No product selected"}
                     </div>
-                    <div className="mt-1 text-sm text-slate-500">
+                    <div className="mt-1 text-xs sm:text-sm text-slate-500">
                       {selectedProduct
-                        ? `${selectedProduct.category} | ${selectedProduct.sku}`
+                        ? `${selectedProduct.category} | #${selectedProduct.id}`
                         : "Pick a product to unlock matching sizes and colors."}
                     </div>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-4">
-                      <div className="text-sm font-medium text-slate-700">Sizes</div>
-                      <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2">
+                    <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3.5 sm:p-4">
+                      <div className="text-xs sm:text-sm font-medium text-slate-700">Sizes</div>
+                      <div className="mt-2.5 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2">
                         {selectedProduct?.sizes.length ? (
                           selectedProduct.sizes.map((size) => (
                             <span
                               key={size}
-                              className="rounded-[10px] border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
+                              className="rounded-[10px] border border-slate-200 bg-white px-2.5 sm:px-3 py-1 text-xs text-slate-700"
                             >
                               {size}
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-slate-500">Unavailable</span>
+                          <span className="text-xs sm:text-sm text-slate-500">Unavailable</span>
                         )}
                       </div>
                     </div>
 
-                    <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-4">
-                      <div className="text-sm font-medium text-slate-700">Colors</div>
-                      <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="rounded-[10px] border border-slate-200 bg-slate-50 p-3.5 sm:p-4">
+                      <div className="text-xs sm:text-sm font-medium text-slate-700">Colors</div>
+                      <div className="mt-2.5 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2">
                         {selectedProduct?.colors.length ? (
                           selectedProduct.colors.map((color) => (
                             <span
                               key={color}
-                              className="rounded-[10px] border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
+                              className="rounded-[10px] border border-slate-200 bg-white px-2.5 sm:px-3 py-1 text-xs text-slate-700"
                             >
                               {color}
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-slate-500">Unavailable</span>
+                          <span className="text-xs sm:text-sm text-slate-500">Unavailable</span>
                         )}
                       </div>
                     </div>
@@ -468,30 +467,30 @@ export const CreateStockManagement = () => {
                 </div>
               </section>
 
-              <section className="rounded-[10px] border border-slate-200 bg-linear-to-r from-[#003334] to-[#014849d7] p-6 text-white shadow-sm">
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold">Notes</h2>
-                  <p className="text-sm text-slate-200">
+              <section className="rounded-[10px] border border-slate-200 bg-linear-to-r from-[#003334] to-[#014849d7] p-4 sm:p-6 text-white shadow-sm">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <h2 className="text-base sm:text-lg font-semibold">Notes</h2>
+                  <p className="text-xs sm:text-sm text-slate-200">
                     Add context that will help the team understand why this stock movement happened.
                   </p>
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-4 sm:mt-6">
                   <textarea
-                    rows={8}
+                    rows={6}
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
                     placeholder="Write a clear reason for the inventory movement..."
-                    className="w-full resize-none rounded-[10px] border border-white/20 bg-white/10 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-200 focus:border-white/40 focus:bg-white/15"
+                    className="w-full resize-none rounded-[10px] border border-white/20 bg-white/10 px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white outline-none transition placeholder:text-slate-200 focus:border-white/40 focus:bg-white/15"
                   />
                 </div>
 
                 {errorMessage ? (
-                  <div className="mt-4 rounded-[10px] border border-red-200/40 bg-red-500/20 px-4 py-3 text-sm text-red-50">
+                  <div className="mt-3.5 sm:mt-4 rounded-[10px] border border-red-200/40 bg-red-500/20 px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-red-50">
                     {errorMessage}
                   </div>
                 ) : (
-                  <div className="mt-4 rounded-[10px] border border-white/15 bg-white/10 px-4 py-3 text-sm text-slate-100">
+                  <div className="mt-3.5 sm:mt-4 rounded-[10px] border border-white/15 bg-white/10 px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-100">
                     Select a product and complete at least one variant row to enable submission.
                   </div>
                 )}
@@ -500,6 +499,6 @@ export const CreateStockManagement = () => {
           </section>
         </form>
       </div>
-    </div >
+    </div>
   );
 };

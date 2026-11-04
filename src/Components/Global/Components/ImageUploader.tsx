@@ -49,8 +49,8 @@ export const VariantImageUploader = ({ image, imageIndex, variantId, imageUrl, o
     };
 
     return (
-        <label className="space-y-2" htmlFor={inputId}>
-            <span className="text-sm font-medium text-slate-700">Image {imageIndex + 1}</span>
+        <label className="block space-y-1.5 w-full min-w-0" htmlFor={inputId}>
+            <span className="text-xs sm:text-sm font-medium text-slate-700">Image {imageIndex + 1}</span>
             <input
                 id={inputId}
                 // required
@@ -63,7 +63,7 @@ export const VariantImageUploader = ({ image, imageIndex, variantId, imageUrl, o
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`flex min-h-44 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[10px] border border-dashed bg-white text-center transition ${isDragging
+                className={`flex min-h-36 sm:min-h-44 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[10px] border border-dashed bg-white text-center transition ${isDragging
                     ? "border-(--main-color) bg-[#d9f1ee] ring-4 ring-[#d9f1ee]"
                     : "border-slate-300 hover:border-(--main-color) hover:bg-slate-50"
                     }`}
@@ -72,20 +72,21 @@ export const VariantImageUploader = ({ image, imageIndex, variantId, imageUrl, o
                     <img
                         src={previewUrl}
                         alt={`Preview for image ${imageIndex + 1}`}
-                        className="h-44 w-full object-cover"
+                        className="h-36 sm:h-44 w-full object-cover"
                     />
                 ) : (
-                    <span className="flex flex-col items-center gap-2 px-4 py-6 text-sm text-slate-500">
-                        <ImagePlus size={28} className="text-slate-400" />
-                        <span className="font-medium text-slate-700">Drop image here or click to upload</span>
-                        <span className="text-xs text-slate-400">PNG, JPG, WEBP, or GIF</span>
+                    <span className="flex flex-col items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-4 sm:py-6 text-center text-slate-500">
+                        <ImagePlus size={24} className="text-slate-400 sm:hidden" />
+                        <ImagePlus size={28} className="text-slate-400 hidden sm:block" />
+                        <span className="font-medium text-slate-700 text-xs sm:text-sm">Drop image or click to upload</span>
+                        <span className="text-[11px] sm:text-xs text-slate-400">PNG, JPG, WEBP, or GIF</span>
                     </span>
                 )}
             </span>
             {image.file ? (
-                <span className="block truncate text-xs text-slate-500">{image.file.name}</span>
+                <span className="block truncate max-w-full text-[11px] sm:text-xs text-slate-500">{image.file.name}</span>
             ) : imageUrl ? (
-                <span className="block truncate text-xs text-slate-500">{imageUrl.split("/").pop()}</span>
+                <span className="block truncate max-w-full text-[11px] sm:text-xs text-slate-500">{imageUrl.split("/").pop()}</span>
             ) : null}
         </label>
     );

@@ -6,12 +6,16 @@ interface BaseProduct {
 export interface Product extends BaseProduct {
   id: number;
   name: string;
-  quantity: number;
-  reserved: number;
-  available: number;
+  quantity?: number;
+  reserved?: number;
+  available?: number;
   sizes: string[];
-  imageUrl: string;
+  imageUrl?: string;
   category: string;
+  slug?: string;
+  status?: string;
+  currentPhysicalQuantity?: number;
+  reservedQuantity?: number;
 }
 
 export interface ProductFormData extends BaseProduct {
@@ -90,13 +94,13 @@ export const MOCK_PRODUCTS: Product[] = [
   { id: 4, name: "Leather Jacket", category: "Outerwear", slug: "JK-BRN-XL-005", price: 149.99, sizes: ["S", "M", "L", "XL"], currentPhysicalQuantity: 4, reservedQuantity: 1, isActive: true },
   { id: 5, name: "Gold Chain Necklace", category: "Accessories", slug: "NC-GLD-XS-007", price: 34.99, sizes: ["XS"], currentPhysicalQuantity: 18, reservedQuantity: 5, isActive: true },
   { id: 6, name: "Striped Long Sleeve Shirt", category: "Tops", slug: "SH-STR-L-008", price: 44.99, sizes: ["XS", "S", "M", "L", "XL", "XXL"], currentPhysicalQuantity: 10, reservedQuantity: 3, isActive: true },
-  { id: 7, name: "Cargo Pants", category: "Bottoms", slug: "PT-CRG-M-009", price: 69.99, sizes: ["S", "M", "L", "XL"], currentPhysicalQuantity: 6, reservedQuantity: 2, status: "Draft" },
-  { id: 8, name: "Evening Gown", category: "Dresses", slug: "GW-EVG-L-010", price: 199.99, sizes: ["XS", "S", "M", "L"], currentPhysicalQuantity: 2, reservedQuantity: 1, status: "Active" },
-  { id: 9, name: "Winter Wool Coat", category: "Outerwear", slug: "CT-WWL-XL-011", price: 189.99, sizes: ["S", "M", "L", "XL", "XXL"], currentPhysicalQuantity: 8, reservedQuantity: 2, status: "Active" },
-  { id: 10, name: "Silk Scarf", category: "Accessories", slug: "SC-RSE-OS-006", price: 49.99, sizes: ["XS"], currentPhysicalQuantity: 17, reservedQuantity: 6, status: "Active" },
-  { id: 11, name: "Casual Polo Shirt", category: "Tops", slug: "PL-CSL-M-012", price: 39.99, sizes: ["S", "M", "L", "XL"], currentPhysicalQuantity: 15, reservedQuantity: 4, status: "Active" },
-  { id: 12, name: "Denim Skirt", category: "Bottoms", slug: "SK-DNM-S-013", price: 54.99, sizes: ["XS", "S", "M", "L"], currentPhysicalQuantity: 9, reservedQuantity: 2, status: "Active" },
-  { id: 13, name: "Cocktail Dress", category: "Dresses", slug: "DR-CKT-M-014", price: 129.99, sizes: ["XS", "S", "M", "L", "XL"], currentPhysicalQuantity: 5, reservedQuantity: 1, status: "Active" },
-  { id: 14, name: "Bomber Jacket", category: "Outerwear", slug: "JK-BMB-L-015", price: 119.99, sizes: ["M", "L", "XL"], currentPhysicalQuantity: 3, reservedQuantity: 1, status: "Draft" },
-  { id: 15, name: "Leather Belt", category: "Accessories", slug: "BL-LTH-M-016", price: 29.99, sizes: ["S", "M", "L"], currentPhysicalQuantity: 20, reservedQuantity: 5, status: "Active" },
+  { id: 7, name: "Cargo Pants", category: "Bottoms", slug: "PT-CRG-M-009", price: 69.99, sizes: ["S", "M", "L", "XL"], currentPhysicalQuantity: 6, reservedQuantity: 2, status: "Draft", isActive: false },
+  { id: 8, name: "Evening Gown", category: "Dresses", slug: "GW-EVG-L-010", price: 199.99, sizes: ["XS", "S", "M", "L"], currentPhysicalQuantity: 2, reservedQuantity: 1, status: "Active", isActive: true },
+  { id: 9, name: "Winter Wool Coat", category: "Outerwear", slug: "CT-WWL-XL-011", price: 189.99, sizes: ["S", "M", "L", "XL", "XXL"], currentPhysicalQuantity: 8, reservedQuantity: 2, status: "Active", isActive: true },
+  { id: 10, name: "Silk Scarf", category: "Accessories", slug: "SC-RSE-OS-006", price: 49.99, sizes: ["XS"], currentPhysicalQuantity: 17, reservedQuantity: 6, status: "Active", isActive: true },
+  { id: 11, name: "Casual Polo Shirt", category: "Tops", slug: "PL-CSL-M-012", price: 39.99, sizes: ["S", "M", "L", "XL"], currentPhysicalQuantity: 15, reservedQuantity: 4, status: "Active", isActive: true },
+  { id: 12, name: "Denim Skirt", category: "Bottoms", slug: "SK-DNM-S-013", price: 54.99, sizes: ["XS", "S", "M", "L"], currentPhysicalQuantity: 9, reservedQuantity: 2, status: "Active", isActive: true },
+  { id: 13, name: "Cocktail Dress", category: "Dresses", slug: "DR-CKT-M-014", price: 129.99, sizes: ["XS", "S", "M", "L", "XL"], currentPhysicalQuantity: 5, reservedQuantity: 1, status: "Active", isActive: true },
+  { id: 14, name: "Bomber Jacket", category: "Outerwear", slug: "JK-BMB-L-015", price: 119.99, sizes: ["M", "L", "XL"], currentPhysicalQuantity: 3, reservedQuantity: 1, status: "Draft", isActive: false },
+  { id: 15, name: "Leather Belt", category: "Accessories", slug: "BL-LTH-M-016", price: 29.99, sizes: ["S", "M", "L"], currentPhysicalQuantity: 20, reservedQuantity: 5, status: "Active", isActive: true },
 ];

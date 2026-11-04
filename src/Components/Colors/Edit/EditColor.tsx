@@ -113,21 +113,21 @@ export const EditColor = () => {
 
   if (isLoadingColor) {
     return (
-      <div className="min-h-screen rounded-3xl bg-white p-12 text-center text-slate-800 shadow-sm">
+      <div className="min-h-[50vh] rounded-2xl sm:rounded-3xl bg-white p-8 sm:p-12 text-center text-slate-800 shadow-sm flex items-center justify-center">
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-600" />
-          <p className="text-slate-500">Loading color for editing...</p>
+          <p className="text-sm text-slate-500">Loading color for editing...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-6 text-slate-800 shadow-sm">
-      <div className="w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-xs">
+    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800 shadow-sm">
+      <div className="w-full rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-3">
+        <div className="mb-6 sm:mb-8 flex flex-col gap-4 border-b border-slate-200 pb-5 sm:pb-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2 sm:space-y-3">
             <Link
               to="/admin/colors"
               className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
@@ -136,8 +136,8 @@ export const EditColor = () => {
               Back to colors
             </Link>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950">Edit Color</h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Edit Color</h1>
+              <p className="mt-1 text-xs sm:text-sm text-slate-500">
                 Updating <span className="font-semibold text-slate-800">{color?.name || formData.nameEn || `#${colorId}`}</span>
               </p>
             </div>
@@ -147,7 +147,7 @@ export const EditColor = () => {
             type="submit"
             form="edit-color-form"
             disabled={isSubmitting || loading}
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex w-full sm:w-auto cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-2.5 sm:py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) disabled:cursor-not-allowed disabled:opacity-70"
           >
             <Save size={16} />
             <span>{isSubmitting || loading ? "Saving..." : "Save Changes"}</span>
@@ -161,18 +161,18 @@ export const EditColor = () => {
           className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]"
         >
           {/* Left Column: Form Fields */}
-          <section className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/70 p-6">
+          <section className="space-y-5 sm:space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/70 p-4 sm:p-6">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Color Information</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-slate-900">Color Information</h2>
               <p className="mt-1 text-xs text-slate-500">
                 Update the color names in English and Arabic along with its hex code.
               </p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               {/* English Name */}
               <label className="block space-y-2">
-                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-700">
                   <Globe size={15} className="text-slate-400" />
                   Color Name in English <span className="text-red-500">*</span>
                 </span>
@@ -184,13 +184,13 @@ export const EditColor = () => {
                   placeholder="e.g. Navy Blue, Emerald, Rose Gold"
                   required
                   maxLength={200}
-                  className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+                  className="w-full rounded-[10px] border border-slate-200 bg-white px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                 />
               </label>
 
               {/* Arabic Name */}
               <label className="block space-y-2">
-                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-700">
                   <Globe size={15} className="text-slate-400" />
                   اسم اللون بالعربية (Arabic Name) <span className="text-red-500">*</span>
                 </span>
@@ -203,18 +203,18 @@ export const EditColor = () => {
                   placeholder="مثال: كحلي، زمردي، ذهبي وردي"
                   required
                   maxLength={200}
-                  className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 font-['Cairo']"
+                  className="w-full rounded-[10px] border border-slate-200 bg-white px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 font-['Cairo']"
                 />
               </label>
 
               {/* Hex Code */}
               <div className="space-y-2">
-                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-700">
                   <Palette size={15} className="text-slate-400" />
                   Hex Code <span className="text-red-500">*</span>
                 </span>
                 <div className="flex overflow-hidden rounded-[10px] border border-slate-200 bg-white focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-100">
-                  <div className="relative w-16 border-r border-slate-200">
+                  <div className="relative w-14 sm:w-16 border-r border-slate-200 shrink-0">
                     <span
                       className="block h-full w-full"
                       style={{ backgroundColor: formData.hex }}
@@ -236,7 +236,7 @@ export const EditColor = () => {
                     placeholder="#003334"
                     maxLength={7}
                     required
-                    className="h-11 w-full px-4 py-3 font-mono text-slate-900 uppercase outline-none placeholder:text-slate-400"
+                    className="h-10 sm:h-11 w-full px-3.5 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base font-mono text-slate-900 uppercase outline-none placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -244,26 +244,26 @@ export const EditColor = () => {
           </section>
 
           {/* Right Column: Live Preview & Status */}
-          <div className="space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             {/* Live Preview Card */}
-            <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-xs">
-              <div className="flex items-start gap-4">
+            <section className="rounded-[10px] border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
+              <div className="flex items-start gap-3 sm:gap-4">
                 <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-300 shadow-md"
+                  className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-300 shadow-md"
                   style={{ backgroundColor: formData.hex }}
                 >
                   <Palette size={20} className="text-white mix-blend-difference" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Live Preview</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-900">Live Preview</h3>
                   <p className="mt-0.5 text-xs text-slate-500">
                     Check how the edited color looks before saving.
                   </p>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex items-center justify-between gap-3">
+              <div className="mt-4 sm:mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <span
                       className="h-9 w-9 rounded-full border border-slate-300 shadow-sm shrink-0"
@@ -271,10 +271,10 @@ export const EditColor = () => {
                       aria-hidden="true"
                     />
                     <div>
-                      <div className="font-semibold text-slate-900">
+                      <div className="font-semibold text-sm sm:text-base text-slate-900">
                         {formData.nameEn || "Color Name (EN)"}
                       </div>
-                      <div className="text-sm font-medium text-slate-500 font-['Cairo']" dir="rtl">
+                      <div className="text-xs sm:text-sm font-medium text-slate-500 font-['Cairo']" dir="rtl">
                         {formData.nameAr || "اسم اللون (AR)"}
                       </div>
                       <div className="font-mono text-xs text-slate-400 uppercase">
@@ -284,7 +284,7 @@ export const EditColor = () => {
                   </div>
 
                   <span
-                    className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                    className={`inline-flex self-start sm:self-auto rounded-full border px-3 py-1 text-xs font-medium ${
                       formData.isActive
                         ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                         : "border-amber-200 bg-amber-50 text-amber-700"
@@ -297,14 +297,14 @@ export const EditColor = () => {
             </section>
 
             {/* Visibility Settings Card */}
-            <section className="rounded-[10px] border border-slate-200 bg-linear-to-r from-[#003334] to-[#014849d7] p-6 text-white shadow-sm">
+            <section className="rounded-[10px] border border-slate-200 bg-linear-to-r from-[#003334] to-[#014849d7] p-4 sm:p-6 text-white shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <Sparkles size={18} className="text-teal-300" />
-                    <h3 className="text-lg font-semibold">Visibility</h3>
+                    <h3 className="text-base sm:text-lg font-semibold">Visibility</h3>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-200">
+                  <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-5 sm:leading-6 text-slate-200">
                     Control whether this color is currently available to products in the dashboard.
                   </p>
                 </div>
@@ -312,7 +312,7 @@ export const EditColor = () => {
                 <button
                   type="button"
                   onClick={handleToggleStatus}
-                  className={`relative inline-flex h-8 w-14 cursor-pointer items-center rounded-full p-1 transition ${
+                  className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full p-1 transition ${
                     formData.isActive ? "bg-teal-400" : "bg-white/20"
                   }`}
                   aria-pressed={formData.isActive}
@@ -326,9 +326,9 @@ export const EditColor = () => {
                 </button>
               </div>
 
-              <div className="mt-6 rounded-[10px] bg-white/10 p-4">
-                <div className="text-xs text-slate-200 uppercase tracking-wider">Current status</div>
-                <div className="mt-1 text-2xl font-bold">
+              <div className="mt-5 sm:mt-6 rounded-[10px] bg-white/10 p-3.5 sm:p-4">
+                <div className="text-[11px] sm:text-xs text-slate-200 uppercase tracking-wider">Current status</div>
+                <div className="mt-1 text-xl sm:text-2xl font-bold">
                   {formData.isActive ? "Active" : "Inactive"}
                 </div>
               </div>
