@@ -2,7 +2,7 @@ import axios from "axios";
 import type { AxiosError } from "axios";
 import type { ApiError, ApiResponse, User } from "./Types/auth";
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "https://localhost:7179/api" : "https://api.keef-wear.com");
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "https://localhost:7179/api" : "https://api.keef-wear.com/api");
 
 let logoutCallback: (() => void) | null = null;
 let refreshPromise: Promise<void> | null = null;
