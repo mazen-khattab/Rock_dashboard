@@ -34,9 +34,9 @@ const buildInitialFormData = (customer: Customer): CustomerFormData => ({
 
 type FormFieldElement = HTMLInputElement | HTMLSelectElement;
 
-const sectionTitleClassName = "text-lg font-semibold text-slate-900";
-const sectionCardClassName = "rounded-[10px] border border-slate-200 bg-slate-50/80 p-6";
-const inputClassName = "w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100";
+const sectionTitleClassName = "text-base sm:text-lg font-semibold text-slate-900";
+const sectionCardClassName = "rounded-[10px] border border-slate-200 bg-slate-50/80 p-4 sm:p-6";
+const inputClassName = "w-full rounded-[10px] border border-slate-200 bg-white px-3.5 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100";
 
 export const EditCustomer = () => {
   const { customerId } = useParams();
@@ -56,7 +56,6 @@ export const EditCustomer = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Edit customer payload:", { customerId, ...formData });
   };
 
   if (!customer || !formData) {
@@ -64,10 +63,10 @@ export const EditCustomer = () => {
   }
 
   return (
-    <div className="min-h-screen p-6 text-slate-800 shadow-sm">
-      <div className="w-full rounded-3xl border border-slate-200 bg-white p-6">
-        <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-3">
+    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800 shadow-sm">
+      <div className="w-full rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
+        <div className="mb-6 sm:mb-8 flex flex-col gap-4 border-b border-slate-200 pb-5 sm:pb-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2 sm:space-y-3">
             <Link
               to="/admin/customers"
               className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
@@ -76,8 +75,8 @@ export const EditCustomer = () => {
               Back to customers
             </Link>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950">Edit Customer</h1>
-              <p className="mt-2 text-sm text-slate-500">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Edit Customer</h1>
+              <p className="mt-1 text-xs sm:text-sm text-slate-500">
                 Update the profile, access, and location details for{" "}
                 <span className="font-semibold text-slate-800">
                   {customer.firstName} {customer.lastName}
@@ -90,14 +89,14 @@ export const EditCustomer = () => {
           <button
             type="submit"
             form="edit-customer-form"
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color)"
+            className="inline-flex w-full sm:w-auto cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-2.5 sm:py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color)"
           >
             <Save size={16} />
-            Save Changes
+            <span>Save Changes</span>
           </button>
         </div>
 
-        <form id="edit-customer-form" onSubmit={handleSubmit} className="space-y-6">
+        <form id="edit-customer-form" onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <section className={sectionCardClassName}>
             <h2 className={sectionTitleClassName}>Profile Data</h2>
 

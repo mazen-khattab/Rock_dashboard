@@ -152,6 +152,7 @@ export const ColorService = {
       const name = (responseData as any)?.name ?? (payload.nameEn || payload.nameAr);
 
       return {
+        ...(typeof responseData === "object" && responseData ? responseData : {}),
         id,
         name,
         nameEn: payload.nameEn,
@@ -159,7 +160,6 @@ export const ColorService = {
         hex,
         hexCode: hex,
         isActive: payload.isActive,
-        ...(typeof responseData === "object" ? responseData : {}),
       };
     } catch (error) {
       throw new Error(getErrorMessage(error, "Failed to create color."));

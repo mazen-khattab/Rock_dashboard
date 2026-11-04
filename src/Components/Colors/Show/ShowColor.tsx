@@ -70,10 +70,10 @@ export const ShowColor = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen rounded-3xl bg-white p-12 text-center text-slate-800 shadow-sm">
+      <div className="min-h-[50vh] rounded-2xl sm:rounded-3xl bg-white p-8 sm:p-12 text-center text-slate-800 shadow-sm flex items-center justify-center">
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-600" />
-          <p className="text-slate-500">Loading color details...</p>
+          <p className="text-sm text-slate-500">Loading color details...</p>
         </div>
       </div>
     );
@@ -81,15 +81,15 @@ export const ShowColor = () => {
 
   if (error || !color) {
     return (
-      <div className="min-h-screen rounded-3xl bg-white p-6 text-slate-800 shadow-sm">
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">Color not found</h1>
-          <p className="mt-3 text-slate-500">
+      <div className="min-h-[50vh] rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 text-slate-800 shadow-sm">
+        <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-10 text-center">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Color not found</h1>
+          <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-slate-500">
             {error ?? "The color you are looking for does not exist or could not be loaded."}
           </p>
           <Link
             to="/admin/colors"
-            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-white transition-colors hover:bg-(--hover-color)"
+            className="mt-5 sm:mt-6 inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-sm text-white transition-colors hover:bg-(--hover-color)"
           >
             <ArrowLeft size={16} />
             <span>Back to Colors</span>
@@ -103,10 +103,10 @@ export const ShowColor = () => {
   const isActive = color.isActive ?? true;
 
   return (
-    <div className="min-h-screen p-6 text-slate-800 shadow-sm">
+    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800 shadow-sm">
       {/* Top Navigation & Action Header */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-3">
+      <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-2 sm:space-y-3">
           <Link
             to="/admin/colors"
             className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
@@ -114,8 +114,8 @@ export const ShowColor = () => {
             <ArrowLeft size={16} />
             Back to colors
           </Link>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-950">Color Details</h1>
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Color Details</h1>
             <span
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
                 isActive
@@ -129,11 +129,11 @@ export const ShowColor = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <Link
             to={`/admin/colors/edit/${color.id}`}
             state={{ color }}
-            className="inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-sm font-medium text-white transition hover:bg-(--hover-color)"
+            className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-xs sm:text-sm font-medium text-white transition hover:bg-(--hover-color)"
           >
             <Edit size={16} />
             <span>Edit Color</span>
@@ -142,7 +142,7 @@ export const ShowColor = () => {
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100"
+            className="inline-flex flex-1 sm:flex-none cursor-pointer items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs sm:text-sm font-medium text-red-600 transition hover:bg-red-100"
           >
             <Trash2 size={16} />
             <span>Delete</span>
@@ -150,93 +150,95 @@ export const ShowColor = () => {
         </div>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-5 sm:gap-6">
         {/* Main Overview Card */}
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs">
-          <div className="mb-6 flex items-center gap-4">
+        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
+          <div className="mb-5 sm:mb-6 flex items-center gap-3.5 sm:gap-4">
             <div
-              className="flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-300 shadow-md"
+              className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border border-slate-300 shadow-md"
               style={{ backgroundColor: hex }}
             >
-              <Palette size={28} className="text-white mix-blend-difference" />
+              <Palette size={24} className="text-white mix-blend-difference sm:hidden" />
+              <Palette size={28} className="text-white mix-blend-difference hidden sm:block" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">{color.name}</h2>
-              <p className="text-sm font-mono text-slate-500 uppercase">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{color.name}</h2>
+              <p className="text-xs sm:text-sm font-mono text-slate-500 uppercase">
                 {hex} &bull; ID: #{color.id}
               </p>
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl bg-slate-50 p-5">
-              <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-2xl bg-slate-50 p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
                 <Tag size={16} />
                 <span>Color Name</span>
               </div>
-              <p className="mt-2 text-xl font-bold text-slate-900">{color.name}</p>
+              <p className="mt-1.5 sm:mt-2 text-lg sm:text-xl font-bold text-slate-900">{color.name}</p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5">
-              <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="rounded-2xl bg-slate-50 p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
                 <Palette size={16} />
                 <span>Hex Value</span>
               </div>
-              <div className="mt-2 flex items-center gap-2">
+              <div className="mt-1.5 sm:mt-2 flex items-center gap-2">
                 <span
                   className="h-5 w-5 rounded-md border border-slate-300"
                   style={{ backgroundColor: hex }}
                 />
-                <p className="font-mono text-xl font-bold text-slate-900 uppercase">{hex}</p>
+                <p className="font-mono text-lg sm:text-xl font-bold text-slate-900 uppercase">{hex}</p>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5">
-              <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="rounded-2xl bg-slate-50 p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
                 <Calendar size={16} />
                 <span>Identifier</span>
               </div>
-              <p className="mt-2 font-mono text-xl font-bold text-slate-900">#{color.id}</p>
+              <p className="mt-1.5 sm:mt-2 font-mono text-lg sm:text-xl font-bold text-slate-900">#{color.id}</p>
             </div>
           </div>
         </section>
 
         {/* Multilingual Translations Section */}
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
-              <Languages size={20} />
+        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
+          <div className="mb-4 sm:mb-5 flex items-center gap-3">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 shrink-0">
+              <Languages size={18} className="sm:hidden" />
+              <Languages size={20} className="hidden sm:block" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">Multilingual Information</h3>
-              <p className="text-sm text-slate-500">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900">Multilingual Information</h3>
+              <p className="text-xs sm:text-sm text-slate-500">
                 Configured names for Arabic and English locales.
               </p>
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">
+          <div className="grid gap-3.5 sm:gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 sm:p-5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
                   English (EN)
                 </span>
                 <Globe size={16} className="text-slate-400" />
               </div>
-              <p className="mt-3 text-lg font-semibold text-slate-900">
+              <p className="mt-2 sm:mt-3 text-base sm:text-lg font-semibold text-slate-900">
                 {color.nameEn || color.name || "—"}
               </p>
               <p className="mt-1 text-xs text-slate-400">Displayed in English store view</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5" dir="rtl">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 sm:p-5" dir="rtl">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
                   العربية (AR)
                 </span>
                 <Globe size={16} className="text-slate-400" />
               </div>
-              <p className="mt-3 text-lg font-semibold text-slate-900 font-['Cairo']">
+              <p className="mt-2 sm:mt-3 text-base sm:text-lg font-semibold text-slate-900 font-['Cairo']">
                 {color.nameAr || "—"}
               </p>
               <p className="mt-1 text-xs text-slate-400">يظهر في واجهة المتجر باللغة العربية</p>

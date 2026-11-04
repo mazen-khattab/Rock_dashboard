@@ -137,11 +137,11 @@ export const SizeService = {
       const sortOrder = Number((responseData as any)?.sortOrder ?? payload.sortOrder);
 
       return {
+        ...(typeof responseData === "object" && responseData ? responseData : {}),
         id,
         name,
         sortOrder,
         isActive: payload.isActive,
-        ...(typeof responseData === "object" ? responseData : {}),
       };
     } catch (error) {
       throw new Error(getErrorMessage(error, "Failed to create size."));

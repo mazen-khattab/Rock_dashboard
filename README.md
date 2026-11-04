@@ -1,5 +1,7 @@
 # React + TypeScript + Vite
 
+Authentication setup, extracted backend contracts, implementation details, and verification results: [AUTH_BACKEND_CONTRACT.md](./AUTH_BACKEND_CONTRACT.md).
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

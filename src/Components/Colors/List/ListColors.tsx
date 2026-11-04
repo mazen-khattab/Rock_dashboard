@@ -19,7 +19,7 @@ import { DeleteModal } from "../../Global/Components/DeleteModal";
 import { toast } from "react-toastify";
 
 export const ListColors = () => {
-  const { colors, loading, error, totalColorCount, getAllColors, deleteColor } = useColor();
+  const { colors, loading, error, getAllColors, deleteColor } = useColor();
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,25 +35,18 @@ export const ListColors = () => {
   }, [getAllColors]);
 
   // Client-side search filtering
-  const filteredColors = colors.filter((col) => {
+  const filteredColors = colors.filter((color) => {
     const query = searchQuery.trim().toLowerCase();
     if (!query) return true;
-    const name = (col.name ?? "").toLowerCase();
-    const nameEn = (col.nameEn ?? "").toLowerCase();
-    const nameAr = (col.nameAr ?? "").toLowerCase();
-    const hex = (col.hex ?? col.hexCode ?? "").toLowerCase();
-    const id = String(col.id).toLowerCase();
-    return (
-      name.includes(query) ||
-      nameEn.includes(query) ||
-      nameAr.includes(query) ||
-      hex.includes(query) ||
-      id.includes(query)
-    );
+
+    const name = (color.name ?? "").toLowerCase();
+    const hex = (color.hex ?? color.hexCode ?? "").toLowerCase();
+    const id = String(color.id).toLowerCase();
+    return name.includes(query) || hex.includes(query) || id.includes(query);
   });
 
-  const totalRows = filteredColors.length > 0 ? filteredColors.length : totalColorCount;
-  const totalPages = Math.max(1, Math.ceil(filteredColors.length / rowsPerPage));
+  const totalRows = filteredColors.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
   const from = (currentPage - 1) * rowsPerPage;
   const currentColors = filteredColors.slice(from, from + rowsPerPage);
 
@@ -88,31 +81,31 @@ export const ListColors = () => {
   };
 
   return (
-    <div className="min-h-screen rounded-3xl p-6 text-slate-800 shadow-sm">
+    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800">
       {/* Page Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Colors</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Colors</h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500">
             Manage product colors, hex palette values, and catalog availability.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => void getAllColors().catch(() => {})}
             disabled={loading}
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 sm:h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 sm:px-3.5 text-xs sm:text-sm font-medium text-slate-700 shadow-xs transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             title="Refresh colors"
           >
-            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
 
           <Link
             to="create"
-            className="inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-(--hover-color)"
+            className="inline-flex h-9 sm:h-10 items-center justify-center gap-2 rounded-xl bg-(--main-color) px-3.5 sm:px-4 text-xs sm:text-sm font-medium text-white shadow-xs transition-colors hover:bg-(--hover-color)"
           >
             <Plus size={16} />
             <span>New Color</span>
@@ -122,17 +115,17 @@ export const ListColors = () => {
 
       {/* Error alert */}
       {error && (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-4 sm:mb-6 rounded-2xl border border-red-200 bg-red-50 p-3.5 sm:p-4 text-xs sm:text-sm text-red-700">
           <div className="font-semibold">Unable to load colors from server</div>
           <p className="mt-1">{error}</p>
         </div>
       )}
 
       {/* Search and Filters */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="relative w-full sm:max-w-md">
           <Search
-            size={18}
+            size={17}
             className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
           />
           <input
@@ -143,48 +136,49 @@ export const ListColors = () => {
               setCurrentPage(1);
             }}
             placeholder="Search colors by name, hex (#FFF), or ID..."
-            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2 sm:py-2.5 pl-10 pr-4 text-xs sm:text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
           />
         </div>
 
-        <div className="text-sm text-slate-500">
-          Total: <span className="font-semibold text-slate-800">{colors.length}</span>
+        <div className="flex items-center justify-between sm:justify-start gap-2 text-xs sm:text-sm text-slate-500">
+          <span>Total colors:</span>
+          <span className="font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{colors.length}</span>
         </div>
       </div>
 
       {/* Colors Table */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
-        <table className="min-w-max w-full table-auto">
-          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 text-[12px] sm:text-[14px] lg:text-[16px]">
+      <div className="w-full overflow-x-auto rounded-xl sm:rounded-2xl border border-slate-200 bg-white shadow-xs">
+        <table className="min-w-[550px] w-full table-auto">
+          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold">
             <tr>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Color</th>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Hex Code</th>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Status</th>
-              <th className="px-5 py-3.5 text-right font-medium whitespace-nowrap">Actions</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Color</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Hex Code</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Status</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 text-[12px] sm:text-[14px] lg:text-[16px]">
+          <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
             {loading && colors.length === 0 ? (
               <tr>
                 <td colSpan={4} className="py-12 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <RefreshCw size={24} className="animate-spin text-teal-600" />
-                    <span>Loading colors...</span>
+                    <RefreshCw size={22} className="animate-spin text-teal-600" />
+                    <span className="text-sm">Loading colors...</span>
                   </div>
                 </td>
               </tr>
             ) : currentColors.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-16 text-center">
+                <td colSpan={4} className="py-12 sm:py-16 text-center px-4">
                   <div className="mx-auto flex max-w-sm flex-col items-center justify-center text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
-                      <Palette size={24} />
+                      <Palette size={22} />
                     </div>
-                    <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                    <h3 className="mt-3 text-base sm:text-lg font-semibold text-slate-900">
                       {searchQuery ? "No matching colors" : "No colors yet"}
                     </h3>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-xs sm:text-sm text-slate-500">
                       {searchQuery
                         ? "Try adjusting your search terms to find what you're looking for."
                         : "Get started by adding your first product color."}
@@ -192,7 +186,7 @@ export const ListColors = () => {
                     {!searchQuery && (
                       <Link
                         to="create"
-                        className="mt-5 inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-sm font-medium text-white transition hover:bg-(--hover-color)"
+                        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-(--main-color) px-4 py-2 text-xs sm:text-sm font-medium text-white transition hover:bg-(--hover-color)"
                       >
                         <Plus size={16} />
                         <span>Add Color</span>
@@ -203,8 +197,8 @@ export const ListColors = () => {
               </tr>
             ) : (
               currentColors.map((color) => {
-                const hex = color.hex || color.hexCode || "#000000";
                 const isActive = color.isActive ?? true;
+                const hex = color.hex || color.hexCode || "#000000";
 
                 return (
                   <tr
@@ -221,43 +215,30 @@ export const ListColors = () => {
                     className="cursor-pointer transition-colors hover:bg-slate-50/80 focus:bg-slate-50 focus:outline-none"
                   >
                     {/* Color Swatch & Name */}
-                    <td className="px-5 py-4 whitespace-nowrap">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <span
-                          className="h-7 w-7 rounded-full border border-slate-300 shadow-sm shrink-0"
+                        <div
+                          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200 shrink-0 shadow-xs"
                           style={{ backgroundColor: hex }}
-                          aria-hidden="true"
                         />
                         <div>
-                          <span className="font-semibold text-slate-900">{color.name}</span>
-                          {(color.nameAr || color.nameEn) && (
-                            <div className="text-xs text-slate-500">
-                              {color.nameEn ? `EN: ${color.nameEn}` : ""}{" "}
-                              {color.nameAr ? `| AR: ${color.nameAr}` : ""}
-                            </div>
-                          )}
+                          <p className="font-semibold text-slate-900">{color.name}</p>
+                          <p className="text-[11px] font-mono text-slate-500">#{color.id}</p>
                         </div>
                       </div>
                     </td>
 
                     {/* Hex Code */}
-                    <td className="px-5 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="inline-block h-3.5 w-3.5 rounded border border-slate-300"
-                          style={{ backgroundColor: hex }}
-                          aria-hidden="true"
-                        />
-                        <span className="font-mono text-sm font-medium text-slate-700 uppercase">
-                          {hex}
-                        </span>
-                      </div>
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap">
+                      <span className="font-mono text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                        {hex.toUpperCase()}
+                      </span>
                     </td>
 
                     {/* Status */}
-                    <td className="px-5 py-4 whitespace-nowrap">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                           isActive
                             ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                             : "border-amber-200 bg-amber-50 text-amber-700"
@@ -273,9 +254,9 @@ export const ListColors = () => {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-5 py-4 whitespace-nowrap text-right">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap text-right">
                       <div
-                        className="inline-flex items-center gap-2"
+                        className="inline-flex items-center gap-1.5 sm:gap-2"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {/* View Details */}
@@ -283,9 +264,9 @@ export const ListColors = () => {
                           to={`show/${color.id}`}
                           state={{ color }}
                           className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
-                          title="View Details"
+                          title="View Color"
                         >
-                          <Eye size={16} />
+                          <Eye size={15} />
                         </Link>
 
                         {/* Edit */}
@@ -295,7 +276,7 @@ export const ListColors = () => {
                           className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
                           title="Edit Color"
                         >
-                          <Edit size={16} />
+                          <Edit size={15} />
                         </Link>
 
                         {/* Delete */}
@@ -305,7 +286,7 @@ export const ListColors = () => {
                           className="cursor-pointer rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100"
                           title="Delete Color"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -318,22 +299,22 @@ export const ListColors = () => {
       </div>
 
       {/* Pagination controls */}
-      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-[12px] sm:text-[14px] text-slate-500">
+      <div className="mt-4 sm:mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-xs sm:text-sm text-slate-500">
           Showing {filteredColors.length === 0 ? 0 : from + 1} to{" "}
           {Math.min(from + rowsPerPage, filteredColors.length)} of {totalRows} row(s)
         </div>
 
-        <div className="flex items-center gap-6 text-[12px] sm:text-[14px]">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-6 text-xs sm:text-sm">
           <div className="flex items-center gap-2">
-            <span className="hidden text-slate-600 sm:block">Rows per page</span>
+            <span className="text-slate-500">Rows:</span>
             <select
               value={rowsPerPage}
               onChange={(e) => {
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 outline-none focus:border-teal-500"
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-700 outline-none focus:border-teal-500"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -343,7 +324,7 @@ export const ListColors = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden text-slate-600 sm:block">
+            <span className="text-xs sm:text-sm font-medium text-slate-600">
               Page {currentPage} of {totalPages || 1}
             </span>
             <div className="flex gap-1">
@@ -351,37 +332,37 @@ export const ListColors = () => {
                 type="button"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="First Page"
               >
-                <ChevronsLeft size={16} />
+                <ChevronsLeft size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Previous Page"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage >= totalPages}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Next Page"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage >= totalPages}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Last Page"
               >
-                <ChevronsRight size={16} />
+                <ChevronsRight size={15} />
               </button>
             </div>
           </div>

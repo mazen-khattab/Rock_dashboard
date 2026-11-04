@@ -98,12 +98,12 @@ export const ListOrders = () => {
   };
 
   return (
-    <div className="min-h-screen rounded-3xl p-6 text-slate-800 shadow-sm">
+    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-950">Orders</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Orders</h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500">
             Monitor customer orders, delivery destinations, and payment statuses.
           </p>
         </div>
@@ -113,10 +113,10 @@ export const ListOrders = () => {
             type="button"
             onClick={() => void getAllOrders(currentPage, rowsPerPage).catch(() => {})}
             disabled={loading}
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 sm:h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 sm:px-3.5 text-xs sm:text-sm font-medium text-slate-700 shadow-xs transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             title="Refresh orders"
           >
-            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
@@ -124,16 +124,16 @@ export const ListOrders = () => {
 
       {/* Error alert */}
       {error && (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-4 sm:mb-6 rounded-2xl border border-red-200 bg-red-50 p-3.5 sm:p-4 text-xs sm:text-sm text-red-700">
           <div className="font-semibold">Unable to load orders from server</div>
           <p className="mt-1">{error}</p>
         </div>
       )}
 
       {/* Filter and Search Bar */}
-      <div className="mb-6 flex flex-col gap-4">
-        {/* Status Pills */}
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4">
+        {/* Status Pills with smooth mobile swipe */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1.5 sm:flex-wrap no-scrollbar">
           {STATUS_FILTERS.map((status) => {
             const isSelected = selectedStatus === status;
             return (
@@ -144,7 +144,7 @@ export const ListOrders = () => {
                   setSelectedStatus(status);
                   setCurrentPage(1);
                 }}
-                className={`cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                className={`cursor-pointer whitespace-nowrap rounded-full px-3 sm:px-3.5 py-1.5 text-xs font-semibold transition ${
                   isSelected
                     ? "bg-(--main-color) text-white shadow-xs"
                     : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -156,10 +156,10 @@ export const ListOrders = () => {
           })}
         </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="relative w-full sm:max-w-md">
             <Search
-              size={18}
+              size={17}
               className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
@@ -170,54 +170,55 @@ export const ListOrders = () => {
                 setCurrentPage(1);
               }}
               placeholder="Search by order #, customer, city, or ID..."
-              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2 sm:py-2.5 pl-10 pr-4 text-xs sm:text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
             />
           </div>
 
-          <div className="text-sm text-slate-500">
-            Total: <span className="font-semibold text-slate-800">{orders.length}</span>
+          <div className="flex items-center justify-between sm:justify-start gap-2 text-xs sm:text-sm text-slate-500">
+            <span>Total orders:</span>
+            <span className="font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{orders.length}</span>
           </div>
         </div>
       </div>
 
       {/* Orders Table */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
-        <table className="min-w-max w-full table-auto">
-          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 text-[12px] sm:text-[14px] lg:text-[16px]">
+      <div className="w-full overflow-x-auto rounded-xl sm:rounded-2xl border border-slate-200 bg-white shadow-xs">
+        <table className="min-w-[700px] w-full table-auto">
+          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold">
             <tr>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Order Number</th>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Customer</th>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">City</th>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Total Price</th>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Status</th>
-              <th className="px-5 py-3.5 text-left font-medium whitespace-nowrap">Created Date</th>
-              <th className="px-5 py-3.5 text-right font-medium whitespace-nowrap">Actions</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Order Number</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Customer</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">City</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Total Price</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Status</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Created Date</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 text-[12px] sm:text-[14px] lg:text-[16px]">
+          <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
             {loading && orders.length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-12 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <RefreshCw size={24} className="animate-spin text-teal-600" />
-                    <span>Loading orders...</span>
+                    <RefreshCw size={22} className="animate-spin text-teal-600" />
+                    <span className="text-sm">Loading orders...</span>
                   </div>
                 </td>
               </tr>
             ) : currentOrders.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-16 text-center">
+                <td colSpan={7} className="py-12 sm:py-16 text-center px-4">
                   <div className="mx-auto flex max-w-sm flex-col items-center justify-center text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
-                      <Package size={24} />
+                      <Package size={22} />
                     </div>
-                    <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                    <h3 className="mt-3 text-base sm:text-lg font-semibold text-slate-900">
                       {searchQuery || selectedStatus !== "All"
                         ? "No matching orders"
                         : "No orders yet"}
                     </h3>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-xs sm:text-sm text-slate-500">
                       {searchQuery || selectedStatus !== "All"
                         ? "Try clearing filters to find what you're looking for."
                         : "Orders placed by customers will appear here."}
@@ -246,31 +247,29 @@ export const ListOrders = () => {
                     className="cursor-pointer transition-colors hover:bg-slate-50/80 focus:bg-slate-50 focus:outline-none"
                   >
                     {/* Order Number */}
-                    <td className="px-5 py-4 whitespace-nowrap font-mono text-sm font-semibold text-slate-900">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap font-mono font-semibold text-slate-900">
                       {orderNumber}
                     </td>
 
-                    {/* Customer Name */}
-                    <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="font-medium text-slate-800">{customer}</span>
+                    {/* Customer */}
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap font-medium text-slate-800">
+                      {customer}
                     </td>
 
                     {/* City */}
-                    <td className="px-5 py-4 whitespace-nowrap text-slate-600">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap text-slate-600">
                       {order.city || "—"}
                     </td>
 
                     {/* Total Price */}
-                    <td className="px-5 py-4 whitespace-nowrap font-semibold text-slate-900">
-                      {typeof order.totalPrice === "number"
-                        ? `${order.totalPrice.toFixed(2)} EGP`
-                        : "—"}
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap font-semibold text-slate-900">
+                      {typeof order.totalPrice === "number" ? `${order.totalPrice.toFixed(2)} EGP` : "—"}
                     </td>
 
                     {/* Status */}
-                    <td className="px-5 py-4 whitespace-nowrap">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${getOrderStatusBadge(
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${getOrderStatusBadge(
                           order.status,
                         )}`}
                       >
@@ -280,12 +279,12 @@ export const ListOrders = () => {
                     </td>
 
                     {/* Created Date */}
-                    <td className="px-5 py-4 whitespace-nowrap text-sm text-slate-500">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap text-slate-500">
                       {dateDisplay}
                     </td>
 
-                    {/* Actions: View only (no add, update, or delete) */}
-                    <td className="px-5 py-4 whitespace-nowrap text-right">
+                    {/* Actions: View only */}
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap text-right">
                       <div
                         className="inline-flex items-center gap-2"
                         onClick={(e) => e.stopPropagation()}
@@ -296,7 +295,7 @@ export const ListOrders = () => {
                           className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
                           title="View Details"
                         >
-                          <Eye size={16} />
+                          <Eye size={15} />
                         </Link>
                       </div>
                     </td>
@@ -309,22 +308,22 @@ export const ListOrders = () => {
       </div>
 
       {/* Pagination controls */}
-      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-[12px] sm:text-[14px] text-slate-500">
+      <div className="mt-4 sm:mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-xs sm:text-sm text-slate-500">
           Showing {filteredOrders.length === 0 ? 0 : from + 1} to{" "}
           {Math.min(from + rowsPerPage, filteredOrders.length)} of {totalRows} row(s)
         </div>
 
-        <div className="flex items-center gap-6 text-[12px] sm:text-[14px]">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-6 text-xs sm:text-sm">
           <div className="flex items-center gap-2">
-            <span className="hidden text-slate-600 sm:block">Rows per page</span>
+            <span className="text-slate-500">Rows:</span>
             <select
               value={rowsPerPage}
               onChange={(e) => {
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 outline-none focus:border-teal-500"
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-700 outline-none focus:border-teal-500"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -334,7 +333,7 @@ export const ListOrders = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden text-slate-600 sm:block">
+            <span className="text-xs sm:text-sm font-medium text-slate-600">
               Page {currentPage} of {totalPages || 1}
             </span>
             <div className="flex gap-1">
@@ -342,37 +341,37 @@ export const ListOrders = () => {
                 type="button"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="First Page"
               >
-                <ChevronsLeft size={16} />
+                <ChevronsLeft size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Previous Page"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage >= totalPages}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Next Page"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage >= totalPages}
-                className="rounded border border-slate-200 bg-white p-1 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Last Page"
               >
-                <ChevronsRight size={16} />
+                <ChevronsRight size={15} />
               </button>
             </div>
           </div>
