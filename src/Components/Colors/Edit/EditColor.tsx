@@ -1,72 +1,131 @@
-import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
-import { ArrowLeft, Palette, Save } from "lucide-react";
-import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import { MOCK_COLORS, type Color, type ColorFormData } from "../../../Types/Color";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { ArrowLeft, Globe, Palette, Save, Sparkles } from "lucide-react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useColor } from "../../../Context/ColorContext";
+import type { Color, ColorFormData } from "../../../Types/Color";
+import { toast } from "react-toastify";
+import { z } from "zod";
 
-
-// const normalizeHexValue = (value: string) => {
-//   const sanitizedValue = value.replace(/[^0-9a-fA-F]/g, "").slice(0, 6);
-//   // console.log(value);
-//   // console.log(sanitizedValue);
-//   return `#${sanitizedValue}`;
-// };
-
-// const isValidHexColor = (value: string) => /^#[0-9a-fA-F]{6}$/.test(value);
+const colorSchema = z.object({
+  nameEn: z
+    .string()
+    .trim()
+    .min(1, "English color name is required.")
+    .max(200, "English color name must be 200 characters or less."),
+  nameAr: z
+    .string()
+    .trim()
+    .min(1, "Arabic color name is required.")
+    .max(200, "Arabic color name must be 200 characters or less."),
+  hex: z
+    .string()
+    .trim()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Hex code must be in #RRGGBB format (e.g., #003334)."),
+  isActive: z.boolean(),
+});
 
 export const EditColor = () => {
   const { colorId } = useParams();
-  const { state } = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { getColorById, updateColor, loading } = useColor();
 
-  const color = useMemo(() => {
-    const stateColor = (state as { color?: Color })?.color;
-    return stateColor ?? MOCK_COLORS.find((item) => item.id === colorId);
-  }, [colorId, state]);
+  const locationColor = (location.state as { color?: Color })?.color;
 
-  const [formData, setFormData] = useState<ColorFormData | null>(() =>
-    color
-      ? {
-        name: color.name,
-        hex: color.hex,
-        isActive: color.isActive,
-      }
-      : null,
-  );
+  const [color, setColor] = useState<Color | null>(locationColor ?? null);
+  const [formData, setFormData] = useState<ColorFormData>({
+    nameEn: locationColor?.nameEn || locationColor?.name || "",
+    nameAr: locationColor?.nameAr || "",
+    hex: locationColor?.hex || locationColor?.hexCode || "#000000",
+    isActive: locationColor?.isActive ?? true,
+  });
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
+  const [isLoadingColor, setIsLoadingColor] = useState(!locationColor);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    setFormData((current) =>
-      current
-        ? {
-          ...current,
-          [name]:  value,
-        }
-        : current,
-    );
+  useEffect(() => {
+    if (!colorId) return;
+
+    if (!locationColor) {
+      setIsLoadingColor(true);
+      getColorById(colorId)
+        .then((fetched) => {
+          setColor(fetched);
+          setFormData({
+            nameEn: fetched.nameEn || fetched.name || "",
+            nameAr: fetched.nameAr || "",
+            hex: fetched.hex || fetched.hexCode || "#000000",
+            isActive: fetched.isActive ?? true,
+          });
+        })
+        .catch((err) => {
+          const message = err instanceof Error ? err.message : "Failed to load color.";
+          toast.error(message);
+        })
+        .finally(() => {
+          setIsLoadingColor(false);
+        });
+    }
+  }, [colorId, getColorById, locationColor]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleToggleStatus = () => {
+    setFormData((prev) => ({
+      ...prev,
+      isActive: !prev.isActive,
+    }));
+  };
 
-    if (!formData) {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!colorId) return;
+
+    const validation = colorSchema.safeParse(formData);
+
+    if (!validation.success) {
+      validation.error.issues.forEach((issue) => {
+        toast.error(issue.message);
+      });
       return;
     }
 
-    console.log("Edit color payload:", {
-      colorId,
-      ...formData,
-    });
+    setIsSubmitting(true);
+
+    try {
+      await updateColor(colorId, formData);
+      toast.success("Color updated successfully!");
+      navigate("/admin/colors");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update color.";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (!color || !formData) {
-    return <Navigate to="/admin/colors" replace />;
+  if (isLoadingColor) {
+    return (
+      <div className="min-h-screen rounded-3xl bg-white p-12 text-center text-slate-800 shadow-sm">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-600" />
+          <p className="text-slate-500">Loading color for editing...</p>
+        </div>
+      </div>
+    );
   }
-
-  // const previewHex = isValidHexColor(formData.hex) ? formData.hex : "#E2E8F0";
 
   return (
     <div className="min-h-screen p-6 text-slate-800 shadow-sm">
-      <div className="w-full rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="w-full rounded-3xl border border-slate-200 bg-white p-6 shadow-xs">
+        {/* Header */}
         <div className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
             <Link
@@ -78,8 +137,8 @@ export const EditColor = () => {
             </Link>
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-slate-950">Edit Color</h1>
-              <p className="mt-2 text-sm text-slate-500">
-                Updating <span className="font-semibold text-slate-800">{color.name}</span>
+              <p className="mt-1 text-sm text-slate-500">
+                Updating <span className="font-semibold text-slate-800">{color?.name || formData.nameEn || `#${colorId}`}</span>
               </p>
             </div>
           </div>
@@ -87,117 +146,189 @@ export const EditColor = () => {
           <button
             type="submit"
             form="edit-color-form"
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color)"
+            disabled={isSubmitting || loading}
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-(--main-color) px-5 py-3 text-sm font-semibold text-white transition hover:bg-(--hover-color) disabled:cursor-not-allowed disabled:opacity-70"
           >
             <Save size={16} />
-            Save Changes
+            <span>{isSubmitting || loading ? "Saving..." : "Save Changes"}</span>
           </button>
         </div>
 
-        <form id="edit-color-form" onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <section className="space-y-5 rounded-[10px] border border-slate-200 bg-slate-50/70 p-6">
+        {/* Form Grid */}
+        <form
+          id="edit-color-form"
+          onSubmit={handleSubmit}
+          className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]"
+        >
+          {/* Left Column: Form Fields */}
+          <section className="space-y-6 rounded-[10px] border border-slate-200 bg-slate-50/70 p-6">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Color Details</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Color Information</h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Update the color names in English and Arabic along with its hex code.
+              </p>
             </div>
 
-            <div className="flex items-center justify-between gap-4">
-              <label className="space-y-2 flex-1">
-                <span className="text-sm font-medium text-slate-700">Color Name</span>
+            <div className="space-y-5">
+              {/* English Name */}
+              <label className="block space-y-2">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                  <Globe size={15} className="text-slate-400" />
+                  Color Name in English <span className="text-red-500">*</span>
+                </span>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="nameEn"
+                  value={formData.nameEn}
                   onChange={handleChange}
-                  placeholder="Gold"
+                  placeholder="e.g. Navy Blue, Emerald, Rose Gold"
+                  required
+                  maxLength={200}
                   className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
                 />
               </label>
 
-              <label className="space-y-2 flex-1">
-                <span className="text-sm font-medium text-slate-700">Hex Code</span>
+              {/* Arabic Name */}
+              <label className="block space-y-2">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                  <Globe size={15} className="text-slate-400" />
+                  اسم اللون بالعربية (Arabic Name) <span className="text-red-500">*</span>
+                </span>
+                <input
+                  type="text"
+                  name="nameAr"
+                  dir="rtl"
+                  value={formData.nameAr}
+                  onChange={handleChange}
+                  placeholder="مثال: كحلي، زمردي، ذهبي وردي"
+                  required
+                  maxLength={200}
+                  className="w-full rounded-[10px] border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 font-['Cairo']"
+                />
+              </label>
+
+              {/* Hex Code */}
+              <div className="space-y-2">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                  <Palette size={15} className="text-slate-400" />
+                  Hex Code <span className="text-red-500">*</span>
+                </span>
                 <div className="flex overflow-hidden rounded-[10px] border border-slate-200 bg-white focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-100">
-                  <span
-                    className="w-14 border-r border-slate-200"
-                    style={{ backgroundColor: formData.hex }}
-                    aria-hidden="true"
-                  />
+                  <div className="relative w-16 border-r border-slate-200">
+                    <span
+                      className="block h-full w-full"
+                      style={{ backgroundColor: formData.hex }}
+                      aria-hidden="true"
+                    />
+                    <input
+                      type="color"
+                      name="hex"
+                      value={formData.hex}
+                      onChange={handleChange}
+                      className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                    />
+                  </div>
                   <input
-                    type="color"
+                    type="text"
                     name="hex"
                     value={formData.hex}
                     onChange={handleChange}
-                    className="w-full h-11 px-4 py-3 font-mono text-slate-900 outline-none placeholder:text-slate-400"
+                    placeholder="#003334"
+                    maxLength={7}
+                    required
+                    className="h-11 w-full px-4 py-3 font-mono text-slate-900 uppercase outline-none placeholder:text-slate-400"
                   />
                 </div>
-              </label>
+              </div>
             </div>
           </section>
 
+          {/* Right Column: Live Preview & Status */}
           <div className="space-y-6">
-            <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-sm">
+            {/* Live Preview Card */}
+            <section className="rounded-[10px] border border-slate-200 bg-white p-6 shadow-xs">
               <div className="flex items-start gap-4">
                 <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200"
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-300 shadow-md"
                   style={{ backgroundColor: formData.hex }}
                 >
                   <Palette size={20} className="text-white mix-blend-difference" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">Live Preview</h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Check how the edited color reads before saving.
+                  <h3 className="text-lg font-semibold text-slate-900">Live Preview</h3>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Check how the edited color looks before saving.
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 rounded-[10px] border border-slate-200 bg-slate-50 p-5">
-                <div className="flex items-center gap-3">
-                  <span
-                    className="h-8 w-8 rounded-full border border-white shadow-sm"
-                    style={{ backgroundColor: formData.hex }}
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <div className="font-semibold text-slate-900">{formData.name || "Unnamed Color"}</div>
-                    <div className="font-mono text-sm text-slate-500">{formData.hex || "#------"}</div>
+              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="h-9 w-9 rounded-full border border-slate-300 shadow-sm shrink-0"
+                      style={{ backgroundColor: formData.hex }}
+                      aria-hidden="true"
+                    />
+                    <div>
+                      <div className="font-semibold text-slate-900">
+                        {formData.nameEn || "Color Name (EN)"}
+                      </div>
+                      <div className="text-sm font-medium text-slate-500 font-['Cairo']" dir="rtl">
+                        {formData.nameAr || "اسم اللون (AR)"}
+                      </div>
+                      <div className="font-mono text-xs text-slate-400 uppercase">
+                        {formData.hex || "#000000"}
+                      </div>
+                    </div>
                   </div>
+
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                      formData.isActive
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : "border-amber-200 bg-amber-50 text-amber-700"
+                    }`}
+                  >
+                    {formData.isActive ? "Active" : "Inactive"}
+                  </span>
                 </div>
               </div>
             </section>
 
+            {/* Visibility Settings Card */}
             <section className="rounded-[10px] border border-slate-200 bg-linear-to-r from-[#003334] to-[#014849d7] p-6 text-white shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-lg font-semibold">Visibility</h2>
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={18} className="text-teal-300" />
+                    <h3 className="text-lg font-semibold">Visibility</h3>
+                  </div>
                   <p className="mt-2 text-sm leading-6 text-slate-200">
-                    Control whether this color is currently available to the dashboard.
+                    Control whether this color is currently available to products in the dashboard.
                   </p>
                 </div>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setFormData((current) =>
-                      current
-                        ? {
-                          ...current,
-                          isActive: !current.isActive,
-                        }
-                        : current,
-                    )
-                  }
-                  className={`relative inline-flex h-8 w-14 cursor-pointer items-center rounded-full p-1 transition ${formData.isActive ? "bg-teal-400" : "bg-white/20"}`}
+                  onClick={handleToggleStatus}
+                  className={`relative inline-flex h-8 w-14 cursor-pointer items-center rounded-full p-1 transition ${
+                    formData.isActive ? "bg-teal-400" : "bg-white/20"
+                  }`}
                   aria-pressed={formData.isActive}
+                  title="Toggle color status"
                 >
                   <span
-                    className={`h-6 w-6 rounded-full bg-white shadow-md transition ${formData.isActive ? "translate-x-6" : "translate-x-0"}`}
+                    className={`h-6 w-6 rounded-full bg-white shadow-md transition ${
+                      formData.isActive ? "translate-x-6" : "translate-x-0"
+                    }`}
                   />
                 </button>
               </div>
 
               <div className="mt-6 rounded-[10px] bg-white/10 p-4">
-                <div className="text-sm text-slate-200">Current status</div>
-                <div className="mt-2 text-2xl font-semibold">
+                <div className="text-xs text-slate-200 uppercase tracking-wider">Current status</div>
+                <div className="mt-1 text-2xl font-bold">
                   {formData.isActive ? "Active" : "Inactive"}
                 </div>
               </div>

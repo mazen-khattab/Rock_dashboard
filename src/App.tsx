@@ -1,11 +1,15 @@
 import { BrowserRouter as Router, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { Sidebar } from "./Components/Sidebar/Sidebar";
 import { Overview } from "./Components/Overview/Overview";
-import { ListProducts } from "./Components/Products";
-import { CreateProduct } from "./Components/Products";
-import { EditProduct } from "./Components/Products";
+import {
+  CreateProduct,
+  EditProduct,
+  ListProducts,
+  ShowProduct,
+} from "./Components/Products";
 import { ListOrders, ShowOrder } from "./Components/Orders";
 import { CreateCustomer, EditCustomer, ListCustomers, ShowCustomer } from "./Components/Customers";
+import { CreateCategory, EditCategory, ListCategories, ShowCategory } from "./Components/Categories";
 import { CreateColor, EditColor, ListColors, ShowColor } from "./Components/Colors";
 import { CreateSize, EditSize, ListSizes, ShowSize } from "./Components/Sizes";
 import { ListUsers } from "./Components/Users";
@@ -55,6 +59,13 @@ function App() {
           <Route path="products" element={<ListProducts />} />
           <Route path="products/create" element={<CreateProduct />} />
           <Route path="products/edit/:productId" element={<EditProduct />} />
+          <Route path="products/show/:productId" element={<ShowProduct />} />
+
+          {/* categories */}
+          <Route path="categories" element={<ListCategories />} />
+          <Route path="categories/create" element={<CreateCategory />} />
+          <Route path="categories/edit/:categoryId" element={<EditCategory />} />
+          <Route path="categories/show/:categoryId" element={<ShowCategory />} />
 
           {/* orders */}
           <Route path="orders" element={<ListOrders />} />

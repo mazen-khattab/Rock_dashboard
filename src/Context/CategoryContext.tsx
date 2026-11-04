@@ -6,13 +6,14 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import { CategoryServices } from "../Services/CategoryServices"
+import { CategoryServices } from "../Services/CategoryServices";
 import {
   type Category,
   type CategoryContextValue,
+  type CategoryFormData,
   type CategoryId,
   type CategoryLookupItem,
-} from "../Types/Category"
+} from "../Types/Category";
 
 const CategoryContext = createContext<CategoryContextValue | undefined>(undefined);
 
@@ -24,26 +25,34 @@ export const CategoryProvider = ({ children }: PropsWithChildren) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Fetches all categories and updates state.
+   */
   const getAllCategories = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const data = await CategoryServices.getAllCategories();
-      
-      setCategories(data.items);
-      setTotalCategoryCount(data.totalCount);
-      
+      const items = data.items ?? [];
+      const count = data.totalCount ?? items.length;
+
+      setCategories(items);
+      setTotalCategoryCount(count);
+
       return data;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch categories.";
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch categories.";
       setError(message);
-      throw error;
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /**
+   * Fetches a single category by ID and updates selectedCategory & cache.
+   */
   const getCategoryById = useCallback(async (categoryId: CategoryId) => {
     setLoading(true);
     setError(null);
@@ -63,15 +72,18 @@ export const CategoryProvider = ({ children }: PropsWithChildren) => {
       });
 
       return category;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch category details.";
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch category details.";
       setError(message);
-      throw error;
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /**
+   * Fetches category lookup items for dropdown selects.
+   */
   const getCategoryLookup = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -80,10 +92,88 @@ export const CategoryProvider = ({ children }: PropsWithChildren) => {
       const data = await CategoryServices.getCategoryLookup();
       setCategoryLookup(data);
       return data;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch category lookup.";
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch category lookup.";
       setError(message);
-      throw error;
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Creates a new category and adds it to local state.
+   */
+  const createCategory = useCallback(async (payload: CategoryFormData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const created = await CategoryServices.createCategory(payload);
+
+      setCategories((currentCategories) => [created, ...currentCategories]);
+      setTotalCategoryCount((currentCount) => currentCount + 1);
+
+      return created;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to create category.";
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Updates an existing category and syncs local state.
+   * Directly ready to hit backend PUT once endpoint is created.
+   */
+  const updateCategory = useCallback(async (categoryId: CategoryId, payload: CategoryFormData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const updated = await CategoryServices.updateCategory(categoryId, payload);
+
+      setCategories((currentCategories) =>
+        currentCategories.map((item) => (item.id === categoryId ? updated : item)),
+      );
+
+      setSelectedCategory((current) =>
+        current?.id === categoryId ? updated : current,
+      );
+
+      return updated;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update category.";
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Deletes a category and removes it from local state.
+   * Directly ready to hit backend DELETE once endpoint is created.
+   */
+  const deleteCategory = useCallback(async (categoryId: CategoryId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await CategoryServices.deleteCategory(categoryId);
+
+      setCategories((currentCategories) =>
+        currentCategories.filter((item) => item.id !== categoryId),
+      );
+      setTotalCategoryCount((currentCount) => Math.max(0, currentCount - 1));
+
+      setSelectedCategory((current) => (current?.id === categoryId ? null : current));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to delete category.";
+      setError(message);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -100,6 +190,9 @@ export const CategoryProvider = ({ children }: PropsWithChildren) => {
       getAllCategories,
       getCategoryById,
       getCategoryLookup,
+      createCategory,
+      updateCategory,
+      deleteCategory,
     }),
     [
       categories,
@@ -111,6 +204,9 @@ export const CategoryProvider = ({ children }: PropsWithChildren) => {
       getAllCategories,
       getCategoryById,
       getCategoryLookup,
+      createCategory,
+      updateCategory,
+      deleteCategory,
     ],
   );
 
