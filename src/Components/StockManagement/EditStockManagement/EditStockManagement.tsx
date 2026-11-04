@@ -203,8 +203,8 @@ export const EditStockManagement = () => {
       note: note.trim(),
       variants: sanitizedVariants,
     };
+    void payload;
 
-    console.log("Update stock transaction payload:", payload);
     setErrorMessage("");
   };
 

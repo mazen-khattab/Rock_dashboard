@@ -3,11 +3,12 @@ import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Context/useAuth";
+import { getAuthErrorMessage } from "../../Services/AuthService";
 
 const loginSchema = z.object({
   email: z.email("Email is required."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
+  password: z.string().min(1, "Password is required."),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -16,16 +17,6 @@ const inputClassName =
   "w-full rounded-[10px] border border-slate-200 bg-white px-3.5 sm:px-4 py-2.5 sm:py-3 pl-11 pr-11 text-sm sm:text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100";
 
 const iconClassName = "pointer-events-none absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400";
-
-const mockHandleLogin = async ({ email, password }: LoginFormValues) => {
-  await new Promise((resolve) => setTimeout(resolve, 900));
-
-  if (email === "admin@test.com" && password === "password123") {
-    return;
-  }
-
-  throw new Error("Invalid email or password.");
-};
 
 type IconButtonProps = ComponentPropsWithoutRef<"button">;
 
@@ -38,15 +29,15 @@ const IconButton = ({ className = "", ...props }: IconButtonProps) => (
 );
 
 export const Login = () => {
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   const {register, handleSubmit, formState: { errors, isSubmitting }} = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@test.com",
-      password: "password123",
+      email: "",
+      password: "",
     },
   });
 
@@ -54,10 +45,9 @@ export const Login = () => {
     setGlobalError(null);
 
     try {
-      await mockHandleLogin(values);
-      navigate("/admin");
+      await login(values);
     } catch (error) {
-      setGlobalError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+      setGlobalError(getAuthErrorMessage(error, "Unable to sign in. Please try again."));
     }
   };
 
@@ -98,6 +88,9 @@ export const Login = () => {
               <input
                 id="email"
                 type="email"
+                autoComplete="username"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.email}
                 placeholder="name@example.com"
                 className={inputClassName}
                 {...register("email")}
@@ -115,6 +108,9 @@ export const Login = () => {
               <input
                 id="password"
                 type={isPasswordVisible ? "text" : "password"}
+                autoComplete="current-password"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.password}
                 placeholder="Enter your password"
                 className={inputClassName}
                 {...register("password")}

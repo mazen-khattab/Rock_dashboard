@@ -56,7 +56,6 @@ export const EditCustomer = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Edit customer payload:", { customerId, ...formData });
   };
 
   if (!customer || !formData) {

@@ -166,8 +166,8 @@ export const CreateStockManagement = () => {
       note: note.trim(),
       variants: sanitizedVariants,
     };
+    void payload;
 
-    console.log("Create stock transaction payload:", payload);
     setErrorMessage("");
   };
 

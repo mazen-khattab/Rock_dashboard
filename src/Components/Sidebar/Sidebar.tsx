@@ -2,8 +2,12 @@ import { NavLink } from "react-router-dom";
 import { Menu, X, User } from "lucide-react";
 import logo from "../../assets/Rock_logo.jpg";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../Context/useAuth";
+import { LogoutButton } from "../Auth/LogoutButton";
 
 export const Sidebar = () => {
+    const { user, profile } = useAuth();
+    const displayName = profile ? `${profile.firstName} ${profile.lastName}`.trim() : user?.userName;
     const [isDesktopOpen, setIsDesktopOpen] = useState<boolean>(false);
     const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
     const [displayLogo, setDisplayLogo] = useState<boolean>(false);
@@ -177,13 +181,14 @@ export const Sidebar = () => {
                 <div className="border-t border-slate-100 p-4">
                     <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-2.5">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 text-teal-800 font-bold text-sm">
-                            MK
+                            {user?.userName}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-bold text-slate-900">Mazen khatab</p>
-                            <p className="truncate text-xs text-slate-500">mazenkhtab11@gmail.com</p>
+                            <p className="truncate text-sm font-bold text-slate-900">{displayName}</p>
+                            <p className="truncate text-xs text-slate-500">{profile?.email ?? user?.role.join(", ")}</p>
                         </div>
                     </div>
+                    <LogoutButton />
                 </div>
             </aside>
 
@@ -261,6 +266,9 @@ export const Sidebar = () => {
                             );
                         })}
                     </nav>
+                    <div className="mt-auto border-t border-slate-100 pt-3">
+                        <LogoutButton compact={!isDesktopOpen} />
+                    </div>
                 </aside>
             </div>
         </>

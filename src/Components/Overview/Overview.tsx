@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { DollarSign, LogOut, ShoppingCart, Users, X } from 'lucide-react';
+import { DollarSign, ShoppingCart, Users, X } from 'lucide-react';
+import { useAuth } from '../../Context/useAuth';
+import { LogoutButton } from '../Auth/LogoutButton';
 import StatsCard from './StatsCard';
 import type { NotificationItem } from '../../Types/Overview';
 
@@ -28,6 +30,8 @@ const notificationsSeed: NotificationItem[] = [
 ];
 
 export const Overview = () => {
+    const { user, profile } = useAuth();
+    const displayName = profile ? `${profile.firstName} ${profile.lastName}`.trim() : user?.userName;
     const [language, setLanguage] = useState<'EN' | 'AR'>('EN');
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -90,12 +94,6 @@ export const Overview = () => {
                 unread: false,
             })),
         );
-    };
-
-    // Handles the logout action.
-    const handleLogout = () => {
-        setIsProfileMenuOpen(false);
-        console.log('Logout clicked');
     };
 
     return (
@@ -183,28 +181,21 @@ export const Overview = () => {
                                 aria-label="Open profile menu"
                             >
                                 <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-teal-50 text-teal-800 font-bold text-xs sm:text-sm border border-teal-100">
-                                    MK
+                                    {user?.userName}
                                 </div>
                                 <div className="text-left hidden md:block ml-2.5 mr-1">
-                                    <h4 className="text-sm font-bold text-slate-900 leading-tight">Mazen khatab</h4>
-                                    <p className="text-xs text-slate-500">mazenkhtab11@gmail.com</p>
+                                    <h4 className="text-sm font-bold text-slate-900 leading-tight">{displayName}</h4>
+                                    <p className="text-xs text-slate-500">{profile?.email ?? user?.role.join(', ')}</p>
                                 </div>
                             </button>
 
                             {isProfileMenuOpen && (
                                 <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-60 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
                                     <div className="text-left md:hidden block p-3 border-b border-slate-100 mb-1">
-                                        <h4 className="font-bold text-sm text-slate-900">Mazen khatab</h4>
-                                        <p className="text-xs text-slate-500 truncate">mazenkhtab11@gmail.com</p>
+                                        <h4 className="font-bold text-sm text-slate-900">{displayName}</h4>
+                                        <p className="text-xs text-slate-500 truncate">{profile?.email ?? user?.role.join(', ')}</p>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={handleLogout}
-                                        className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
-                                    >
-                                        <LogOut size={16} />
-                                        Logout
-                                    </button>
+                                    <LogoutButton />
                                 </div>
                             )}
                         </div>
