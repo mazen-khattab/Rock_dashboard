@@ -124,7 +124,7 @@ export const ProductService = {
    */
   async getAllProducts(pageNumber: number, pageSize: number, category?: string, size?: string, color?: string): Promise<PaginatedProducts> {
     try {
-      const response = await api.get<PaginatedProducts>("/Products/admin/lang/2", {
+      const response = await api.get<PaginatedProducts>("/Products/admin", {
         params: {
           pageNumber,
           pageSize,

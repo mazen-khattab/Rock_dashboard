@@ -11,6 +11,7 @@ export const Sidebar = () => {
     const menuItems = [
         { name: "Dashboard", link: "/admin", icon: <i className="fa-solid fa-house" /> },
         { name: "Products", link: "/admin/products", icon: <i className="fa-solid fa-boxes-stacked" /> },
+        { name: "Categories", link: "/admin/categories", icon: <i className="fa-solid fa-layer-group" /> },
         { name: "Orders", link: "/admin/orders", icon: <i className="fa-solid fa-cart-shopping" /> },
         { name: "Stock Management", link: "/admin/stock-management", icon: <i className="fa-solid fa-warehouse" /> },
         { name: "Colors", link: "/admin/colors", icon: <i className="fa-solid fa-palette" /> },

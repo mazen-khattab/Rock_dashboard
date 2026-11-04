@@ -1,4 +1,4 @@
-export type SizeId = string;
+export type SizeId = number | string;
 
 export interface Size {
   id: SizeId;
@@ -6,6 +6,19 @@ export interface Size {
   sortOrder: number;
   isActive: boolean;
   [key: string]: unknown;
+}
+
+export interface SizeFormData {
+  name: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface SizeDetailsDto {
+  id?: number;
+  name: string;
+  sortOrder: number;
+  isActive: boolean;
 }
 
 export interface SizeLookupItem {
@@ -30,7 +43,7 @@ export interface PaginatedSizes {
   pageNumber: number;
 }
 
-export type SizeDetailsResponse = Size | { data?: Size };
+export type SizeDetailsResponse = Size | { data?: Size; [key: string]: unknown };
 
 export type SizeLookupResponse =
   | SizeLookupItem[]
@@ -49,19 +62,16 @@ export type SizeContextValue = {
   getAllSizes: () => Promise<PaginatedSizes>;
   getSizeById: (sizeId: SizeId) => Promise<Size>;
   getSizeLookup: () => Promise<SizeLookupItem[]>;
-};
-
-export type SizeFormData = {
-  name: string;
-  sortOrder: number;
-  isActive: boolean;
+  createSize: (payload: SizeFormData) => Promise<Size>;
+  updateSize: (sizeId: SizeId, payload: SizeFormData) => Promise<Size>;
+  deleteSize: (sizeId: SizeId) => Promise<void>;
 };
 
 export const MOCK_SIZES: Size[] = [
-  { id: "1", name: "XS", sortOrder: 1, isActive: true },
-  { id: "2", name: "S", sortOrder: 2, isActive: true },
-  { id: "3", name: "M", sortOrder: 3, isActive: true },
-  { id: "4", name: "L", sortOrder: 4, isActive: true },
-  { id: "5", name: "XL", sortOrder: 5, isActive: true },
-  { id: "6", name: "XXL", sortOrder: 6, isActive: false },
+  { id: 1, name: "XS", sortOrder: 1, isActive: true },
+  { id: 2, name: "S", sortOrder: 2, isActive: true },
+  { id: 3, name: "M", sortOrder: 3, isActive: true },
+  { id: 4, name: "L", sortOrder: 4, isActive: true },
+  { id: 5, name: "XL", sortOrder: 5, isActive: true },
+  { id: 6, name: "XXL", sortOrder: 6, isActive: false },
 ];

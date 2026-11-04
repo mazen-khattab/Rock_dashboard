@@ -10,6 +10,7 @@ import { ColorService } from "../Services/ColorService";
 import type {
   Color,
   ColorContextValue,
+  ColorFormData,
   ColorId,
   ColorLookupItem,
 } from "../Types/Color";
@@ -24,26 +25,34 @@ export const ColorProvider = ({ children }: PropsWithChildren) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Fetches all colors and updates state.
+   */
   const getAllColors = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const data = await ColorService.getAllColors();
+      const items = data.items ?? [];
+      const count = data.totalCount ?? items.length;
 
-      setColors(data.items);
-      setTotalColorCount(data.totalCount);
+      setColors(items);
+      setTotalColorCount(count);
 
       return data;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch colors.";
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch colors.";
       setError(message);
-      throw error;
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /**
+   * Fetches a single color by ID and updates selectedColor & cache.
+   */
   const getColorById = useCallback(async (colorId: ColorId) => {
     setLoading(true);
     setError(null);
@@ -53,25 +62,28 @@ export const ColorProvider = ({ children }: PropsWithChildren) => {
 
       setSelectedColor(color);
       setColors((currentColors) => {
-        const existingIndex = currentColors.findIndex((item) => item.id === color.id);
+        const existingIndex = currentColors.findIndex((item) => String(item.id) === String(color.id));
 
         if (existingIndex === -1) {
           return [...currentColors, color];
         }
 
-        return currentColors.map((item) => (item.id === color.id ? color : item));
+        return currentColors.map((item) => (String(item.id) === String(color.id) ? color : item));
       });
 
       return color;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch color details.";
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch color details.";
       setError(message);
-      throw error;
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /**
+   * Fetches color lookup items for dropdown selects.
+   */
   const getColorLookup = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -80,10 +92,90 @@ export const ColorProvider = ({ children }: PropsWithChildren) => {
       const data = await ColorService.getColorLookup();
       setColorLookup(data);
       return data;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch color lookup.";
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch color lookup.";
       setError(message);
-      throw error;
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Creates a new color and adds it to local state.
+   */
+  const createColor = useCallback(async (payload: ColorFormData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const created = await ColorService.createColor(payload);
+
+      setColors((currentColors) => [created, ...currentColors]);
+      setTotalColorCount((currentCount) => currentCount + 1);
+
+      return created;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to create color.";
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Updates an existing color and syncs local state.
+   * Directly ready to hit backend PUT once endpoint is created.
+   */
+  const updateColor = useCallback(async (colorId: ColorId, payload: ColorFormData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const updated = await ColorService.updateColor(colorId, payload);
+
+      setColors((currentColors) =>
+        currentColors.map((item) => (String(item.id) === String(colorId) ? updated : item)),
+      );
+
+      setSelectedColor((current) =>
+        current && String(current.id) === String(colorId) ? updated : current,
+      );
+
+      return updated;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update color.";
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Deletes a color and removes it from local state.
+   * Directly ready to hit backend DELETE once endpoint is created.
+   */
+  const deleteColor = useCallback(async (colorId: ColorId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await ColorService.deleteColor(colorId);
+
+      setColors((currentColors) =>
+        currentColors.filter((item) => String(item.id) !== String(colorId)),
+      );
+      setTotalColorCount((currentCount) => Math.max(0, currentCount - 1));
+
+      setSelectedColor((current) =>
+        current && String(current.id) === String(colorId) ? null : current,
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to delete color.";
+      setError(message);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -100,6 +192,9 @@ export const ColorProvider = ({ children }: PropsWithChildren) => {
       getAllColors,
       getColorById,
       getColorLookup,
+      createColor,
+      updateColor,
+      deleteColor,
     }),
     [
       colors,
@@ -111,6 +206,9 @@ export const ColorProvider = ({ children }: PropsWithChildren) => {
       getAllColors,
       getColorById,
       getColorLookup,
+      createColor,
+      updateColor,
+      deleteColor,
     ],
   );
 
