@@ -5,7 +5,8 @@
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  background-color: #f8fafc;
+  background-color: #09090b;
+  color: #e4e4e7;
 }
 
 .app-content {
@@ -13,6 +14,7 @@
   min-width: 0;
   width: 100%;
   max-width: 100%;
+  background-color: #09090b;
 }
 
 @media (min-width: 1024px) {

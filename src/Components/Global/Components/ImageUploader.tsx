@@ -50,10 +50,9 @@ export const VariantImageUploader = ({ image, imageIndex, variantId, imageUrl, o
 
     return (
         <label className="block space-y-1.5 w-full min-w-0" htmlFor={inputId}>
-            <span className="text-xs sm:text-sm font-medium text-slate-700">Image {imageIndex + 1}</span>
+            <span className="text-xs sm:text-sm font-medium text-zinc-300">Image {imageIndex + 1}</span>
             <input
                 id={inputId}
-                // required
                 type="file"
                 accept="image/*"
                 onChange={handleInputChange}
@@ -63,10 +62,11 @@ export const VariantImageUploader = ({ image, imageIndex, variantId, imageUrl, o
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`flex min-h-36 sm:min-h-44 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[10px] border border-dashed bg-white text-center transition ${isDragging
-                    ? "border-(--main-color) bg-[#d9f1ee] ring-4 ring-[#d9f1ee]"
-                    : "border-slate-300 hover:border-(--main-color) hover:bg-slate-50"
-                    }`}
+                className={`flex min-h-36 sm:min-h-44 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed text-center transition ${
+                    isDragging
+                        ? "border-zinc-400 bg-zinc-800/80 ring-2 ring-zinc-600"
+                        : "border-zinc-700 bg-zinc-900/60 hover:border-zinc-500 hover:bg-zinc-850/80"
+                }`}
             >
                 {previewUrl ? (
                     <img
@@ -75,18 +75,18 @@ export const VariantImageUploader = ({ image, imageIndex, variantId, imageUrl, o
                         className="h-36 sm:h-44 w-full object-cover"
                     />
                 ) : (
-                    <span className="flex flex-col items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-4 sm:py-6 text-center text-slate-500">
-                        <ImagePlus size={24} className="text-slate-400 sm:hidden" />
-                        <ImagePlus size={28} className="text-slate-400 hidden sm:block" />
-                        <span className="font-medium text-slate-700 text-xs sm:text-sm">Drop image or click to upload</span>
-                        <span className="text-[11px] sm:text-xs text-slate-400">PNG, JPG, WEBP, or GIF</span>
+                    <span className="flex flex-col items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-4 sm:py-6 text-center text-zinc-400">
+                        <ImagePlus size={24} className="text-zinc-500 sm:hidden" />
+                        <ImagePlus size={28} className="text-zinc-500 hidden sm:block" />
+                        <span className="font-medium text-zinc-200 text-xs sm:text-sm">Drop image or click to upload</span>
+                        <span className="text-[11px] sm:text-xs text-zinc-500">PNG, JPG, WEBP, or GIF</span>
                     </span>
                 )}
             </span>
             {image.file ? (
-                <span className="block truncate max-w-full text-[11px] sm:text-xs text-slate-500">{image.file.name}</span>
+                <span className="block truncate max-w-full text-[11px] sm:text-xs text-zinc-500">{image.file.name}</span>
             ) : imageUrl ? (
-                <span className="block truncate max-w-full text-[11px] sm:text-xs text-slate-500">{imageUrl.split("/").pop()}</span>
+                <span className="block truncate max-w-full text-[11px] sm:text-xs text-zinc-500">{imageUrl.split("/").pop()}</span>
             ) : null}
         </label>
     );

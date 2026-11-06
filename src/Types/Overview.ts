@@ -5,8 +5,9 @@ export interface StatsCardProps {
   value: string;
   change: number;
   icon: LucideIcon;
-  iconColor: string;
-  iconBg: string;
+  iconColor?: string;
+  iconBg?: string;
+  subtitle?: string;
 }
 
 export type NotificationItem = {
@@ -16,3 +17,13 @@ export type NotificationItem = {
   time: string;
   unread: boolean;
 };
+
+export interface RecentOrderOverview {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  date: string;
+  amount: string;
+  status: "Completed" | "Processing" | "Shipped" | "Cancelled";
+  itemsCount: number;
+}

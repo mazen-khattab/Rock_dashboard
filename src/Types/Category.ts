@@ -67,11 +67,3 @@ export type CategoryContextValue = {
   updateCategory: (categoryId: CategoryId, payload: CategoryFormData) => Promise<Category>;
   deleteCategory: (categoryId: CategoryId) => Promise<void>;
 };
-
-export const MOCK_CATEGORIES: Category[] = [
-  { id: 1, name: "Tops", nameEn: "Tops", nameAr: "ملابس علوية", isActive: true },
-  { id: 2, name: "Bottoms", nameEn: "Bottoms", nameAr: "بناطيل وبنطلونات", isActive: true },
-  { id: 3, name: "Dresses", nameEn: "Dresses", nameAr: "فساتين", isActive: true },
-  { id: 4, name: "Outerwear", nameEn: "Outerwear", nameAr: "ملابس خارجية", isActive: true },
-  { id: 5, name: "Accessories", nameEn: "Accessories", nameAr: "إكسسوارات", isActive: true },
-];

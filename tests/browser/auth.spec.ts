@@ -23,7 +23,7 @@ async function mockAuth(page: Page, initialSession: "active" | "expired" | "sign
   await page.context().route("**/api/**", async (route) => {
     const path = new URL(route.request().url()).pathname.toLowerCase();
     const headers = {
-      "access-control-allow-origin": "http://localhost:5174",
+      "access-control-allow-origin": route.request().headers()["origin"] ?? "http://localhost:5175",
       "access-control-allow-credentials": "true",
       "access-control-allow-headers": "content-type, x-request-id, accept-language",
       "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
