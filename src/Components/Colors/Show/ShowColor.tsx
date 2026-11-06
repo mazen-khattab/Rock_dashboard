@@ -70,10 +70,12 @@ export const ShowColor = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[50vh] rounded-2xl sm:rounded-3xl bg-white p-8 sm:p-12 text-center text-slate-800 shadow-sm flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-600" />
-          <p className="text-sm text-slate-500">Loading color details...</p>
+      <div className="min-h-screen bg-black p-3.5 sm:p-5 lg:p-6 text-zinc-200">
+        <div className="rounded-2xl sm:rounded-3xl bg-zinc-950 p-8 sm:p-12 text-center text-zinc-300 shadow-2xl border border-zinc-800">
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-800 border-t-zinc-400" />
+            <p className="text-sm sm:text-base text-zinc-400">Loading color details...</p>
+          </div>
         </div>
       </div>
     );
@@ -81,15 +83,15 @@ export const ShowColor = () => {
 
   if (error || !color) {
     return (
-      <div className="min-h-[50vh] rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 text-slate-800 shadow-sm">
-        <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-10 text-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Color not found</h1>
-          <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-slate-500">
+      <div className="min-h-screen bg-black p-3.5 sm:p-6 text-zinc-200">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:p-10 text-center shadow-2xl">
+          <h1 className="text-xl sm:text-2xl font-bold text-zinc-100">Color not found</h1>
+          <p className="mt-2 text-xs sm:text-sm text-zinc-400">
             {error ?? "The color you are looking for does not exist or could not be loaded."}
           </p>
           <Link
             to="/admin/colors"
-            className="mt-5 sm:mt-6 inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-sm text-white transition-colors hover:bg-(--hover-color)"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-2 text-xs sm:text-sm font-semibold text-zinc-200 transition hover:bg-zinc-750"
           >
             <ArrowLeft size={16} />
             <span>Back to Colors</span>
@@ -103,145 +105,152 @@ export const ShowColor = () => {
   const isActive = color.isActive ?? true;
 
   return (
-    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800 shadow-sm">
+    <div className="min-h-screen bg-black p-3.5 sm:p-5 lg:p-6 text-zinc-200 space-y-4 sm:space-y-6">
       {/* Top Navigation & Action Header */}
-      <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-2 sm:space-y-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800/80 pb-4 sm:pb-6">
+        <div className="space-y-2">
           <Link
             to="/admin/colors"
-            className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-zinc-400 transition hover:text-zinc-200"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={15} />
             Back to colors
           </Link>
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Color Details</h1>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-100">Color Details</h1>
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                 isActive
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-amber-200 bg-amber-50 text-amber-700"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                  : "border-zinc-700 bg-zinc-800 text-zinc-400"
               }`}
             >
-              {isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+              {isActive ? <CheckCircle2 size={12} className="text-emerald-400" /> : <XCircle size={12} className="text-zinc-500" />}
               {isActive ? "Active" : "Inactive"}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link
             to={`/admin/colors/edit/${color.id}`}
             state={{ color }}
-            className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-xs sm:text-sm font-medium text-white transition hover:bg-(--hover-color)"
+            className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 hover:text-white"
           >
-            <Edit size={16} />
+            <Edit size={15} />
             <span>Edit Color</span>
           </Link>
 
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex flex-1 sm:flex-none cursor-pointer items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs sm:text-sm font-medium text-red-600 transition hover:bg-red-100"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/80 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-zinc-400 transition hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400"
           >
-            <Trash2 size={16} />
+            <Trash2 size={15} />
             <span>Delete</span>
           </button>
         </div>
       </div>
 
-      <div className="grid gap-5 sm:gap-6">
+      <div className="grid gap-4 sm:gap-6 min-w-0">
         {/* Main Overview Card */}
-        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
-          <div className="mb-5 sm:mb-6 flex items-center gap-3.5 sm:gap-4">
+        <section className="rounded-2xl sm:rounded-3xl border border-zinc-800/80 bg-zinc-950 p-4 sm:p-6 shadow-2xl">
+          <div className="mb-4 sm:mb-6 flex items-center gap-3.5">
             <div
-              className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl border border-slate-300 shadow-md"
+              className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl border border-zinc-700 shadow-md"
               style={{ backgroundColor: hex }}
             >
-              <Palette size={24} className="text-white mix-blend-difference sm:hidden" />
-              <Palette size={28} className="text-white mix-blend-difference hidden sm:block" />
+              <Palette size={24} className="text-white mix-blend-difference" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{color.name}</h2>
-              <p className="text-xs sm:text-sm font-mono text-slate-500 uppercase">
+              <h2 className="text-xl sm:text-2xl font-bold text-zinc-100">{color.name}</h2>
+              <p className="text-xs sm:text-sm font-mono text-zinc-400 uppercase">
                 {hex} &bull; ID: #{color.id}
               </p>
             </div>
           </div>
 
-          <div className="grid gap-3.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl bg-slate-50 p-4 sm:p-5">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
-                <Tag size={16} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/80 p-3.5 sm:p-4">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-400">
+                <Tag size={15} className="text-zinc-500" />
                 <span>Color Name</span>
               </div>
-              <p className="mt-1.5 sm:mt-2 text-lg sm:text-xl font-bold text-slate-900">{color.name}</p>
+              <p className="mt-1.5 text-base sm:text-lg font-bold text-zinc-100">{color.name}</p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4 sm:p-5">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
-                <Palette size={16} />
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/80 p-3.5 sm:p-4">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-400">
+                <Palette size={15} className="text-zinc-500" />
                 <span>Hex Value</span>
               </div>
-              <div className="mt-1.5 sm:mt-2 flex items-center gap-2">
+              <div className="mt-1.5 flex items-center gap-2">
                 <span
-                  className="h-5 w-5 rounded-md border border-slate-300"
-                  style={{ backgroundColor: hex }}
+                  className="h-5 w-5 rounded-md border shadow-xs"
+                  style={{ backgroundColor: hex, borderColor: `${hex}80` }}
                 />
-                <p className="font-mono text-lg sm:text-xl font-bold text-slate-900 uppercase">{hex}</p>
+                <p
+                  className="font-mono text-base sm:text-lg font-bold uppercase px-2 py-0.5 rounded-lg border"
+                  style={{
+                    color: hex,
+                    backgroundColor: `${hex}1a`,
+                    borderColor: `${hex}50`,
+                  }}
+                >
+                  {hex}
+                </p>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4 sm:p-5">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
-                <Calendar size={16} />
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/80 p-3.5 sm:p-4">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-400">
+                <Calendar size={15} className="text-zinc-500" />
                 <span>Identifier</span>
               </div>
-              <p className="mt-1.5 sm:mt-2 font-mono text-lg sm:text-xl font-bold text-slate-900">#{color.id}</p>
+              <p className="mt-1.5 font-mono text-base sm:text-lg font-bold text-zinc-100">#{color.id}</p>
             </div>
           </div>
         </section>
 
         {/* Multilingual Translations Section */}
-        <section className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
+        <section className="rounded-2xl sm:rounded-3xl border border-zinc-800/80 bg-zinc-950 p-4 sm:p-6 shadow-2xl">
           <div className="mb-4 sm:mb-5 flex items-center gap-3">
-            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 shrink-0">
-              <Languages size={18} className="sm:hidden" />
-              <Languages size={20} className="hidden sm:block" />
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300">
+              <Languages size={18} />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-semibold text-slate-900">Multilingual Information</h3>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <h3 className="text-base sm:text-lg font-bold text-zinc-100">Multilingual Information</h3>
+              <p className="text-xs sm:text-sm text-zinc-400">
                 Configured names for Arabic and English locales.
               </p>
             </div>
           </div>
 
-          <div className="grid gap-3.5 sm:gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 sm:p-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div className="rounded-xl sm:rounded-2xl border border-zinc-800 bg-zinc-900/80 p-3.5 sm:p-4">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   English (EN)
                 </span>
-                <Globe size={16} className="text-slate-400" />
+                <Globe size={15} className="text-zinc-500" />
               </div>
-              <p className="mt-2 sm:mt-3 text-base sm:text-lg font-semibold text-slate-900">
+              <p className="mt-2 text-base sm:text-lg font-semibold text-zinc-100">
                 {color.nameEn || color.name || "—"}
               </p>
-              <p className="mt-1 text-xs text-slate-400">Displayed in English store view</p>
+              <p className="mt-0.5 text-xs text-zinc-500">Displayed in English store view</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 sm:p-5" dir="rtl">
+            <div className="rounded-xl sm:rounded-2xl border border-zinc-800 bg-zinc-900/80 p-3.5 sm:p-4" dir="rtl">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   العربية (AR)
                 </span>
-                <Globe size={16} className="text-slate-400" />
+                <Globe size={15} className="text-zinc-500" />
               </div>
-              <p className="mt-2 sm:mt-3 text-base sm:text-lg font-semibold text-slate-900 font-['Cairo']">
+              <p className="mt-2 text-base sm:text-lg font-semibold text-zinc-100 font-['Cairo']">
                 {color.nameAr || "—"}
               </p>
-              <p className="mt-1 text-xs text-slate-400">يظهر في واجهة المتجر باللغة العربية</p>
+              <p className="mt-0.5 text-xs text-zinc-500">يظهر في واجهة المتجر باللغة العربية</p>
             </div>
           </div>
         </section>

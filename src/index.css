@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --main-color: #003334;
-  --hover-color: #014849;
-  --secondary-color: white;
+  --main-color: #000000;
+  --secondary-color: #71717a;
+  --bg-primary: #09090b;
+  --bg-surface: #121215;
+  --bg-surface-elevated: #18181b;
+  --border-muted: #27272a;
+  --border-subtle: #3f3f46;
+  --text-primary: #e4e4e7;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --hover-color: #27272a;
+  --focus-input-color: #3f3f4680;
   --transition: 0.3s;
   --main-margin: 64px;
   --main-padding: 16px;
-  --focus-input-color: #0148496e;
 }
 
 * {
@@ -20,9 +28,30 @@ body {
   padding: 0;
   max-width: 100%;
   overflow-x: hidden;
+  background-color: #09090b;
+  color: #e4e4e7;
   font-family: 'Roboto', 'Cairo', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom dark scrollbar using degrees of black and gray */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -32,6 +61,6 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -75,27 +75,27 @@ export const Sidebar = () => {
     return (
         <>
             {/* Top Navigation Bar for Mobile and Tablet (< 1024px) */}
-            <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-3 sm:px-4 backdrop-blur shadow-xs lg:hidden">
+            <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full items-center justify-between border-b border-zinc-800/80 bg-zinc-950/95 px-3 sm:px-4 backdrop-blur shadow-md lg:hidden">
                 <div className="flex items-center gap-3">
                     <button
                         type="button"
                         onClick={() => setIsMobileOpen(true)}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95 cursor-pointer"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300 shadow-xs transition hover:bg-zinc-800 hover:text-zinc-100 active:scale-95 cursor-pointer"
                         aria-label="Open navigation menu"
                     >
                         <Menu size={20} />
                     </button>
 
                     <NavLink to="/admin" className="flex items-center gap-2.5">
-                        <img src={logo} alt="Rock logo" className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg object-cover shadow-xs" />
-                        <span className="text-xl font-extrabold tracking-tight text-slate-900">Rock</span>
+                        <img src={logo} alt="Rock logo" className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg object-cover border border-zinc-800 shadow-xs" />
+                        <span className="text-xl font-extrabold tracking-tight text-zinc-100">Rock</span>
                     </NavLink>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <NavLink
                         to="/admin"
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 transition"
                         title="Dashboard Profile"
                     >
                         <User size={18} />
@@ -106,7 +106,7 @@ export const Sidebar = () => {
             {/* Mobile Drawer Backdrop */}
             {isMobileOpen && (
                 <div
-                    className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs transition-opacity duration-300 lg:hidden"
+                    className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs transition-opacity duration-300 lg:hidden"
                     onClick={() => setIsMobileOpen(false)}
                     aria-hidden="true"
                 />
@@ -114,21 +114,21 @@ export const Sidebar = () => {
 
             {/* Mobile Drawer (Left Slide-in) */}
             <aside
-                className={`fixed top-0 left-0 z-50 flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
+                className={`fixed top-0 left-0 z-50 flex h-full w-72 max-w-[85vw] flex-col bg-zinc-950 border-r border-zinc-800 shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
                     isMobileOpen ? "translate-x-0" : "-translate-x-full"
                 }`}
                 aria-label="Mobile navigation"
             >
-                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                <div className="flex items-center justify-between border-b border-zinc-800/80 px-5 py-4">
                     <NavLink to="/admin" className="flex items-center gap-3" onClick={() => setIsMobileOpen(false)}>
-                        <img src={logo} alt="Keef Wear logo" className="h-9 w-9 rounded-xl object-cover shadow-xs" />
-                        <span className="text-2xl font-extrabold tracking-tight text-slate-900">Keef Wear</span>
+                        <img src={logo} alt="Rock logo" className="h-9 w-9 rounded-xl object-cover border border-zinc-800 shadow-xs" />
+                        <span className="text-2xl font-extrabold tracking-tight text-zinc-100">Rock</span>
                     </NavLink>
 
                     <button
                         type="button"
                         onClick={() => setIsMobileOpen(false)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition hover:bg-slate-200 cursor-pointer"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-200 cursor-pointer"
                         aria-label="Close navigation menu"
                     >
                         <X size={18} />
@@ -142,7 +142,7 @@ export const Sidebar = () => {
 
                         if (!item.link) {
                             return (
-                                <div key={index} className={`${baseClasses} text-slate-400`}>
+                                <div key={index} className={`${baseClasses} text-zinc-500`}>
                                     <span className="text-lg w-6 text-center">{item.icon}</span>
                                     <span className="flex-1">{item.name}</span>
                                 </div>
@@ -159,18 +159,18 @@ export const Sidebar = () => {
                                     [
                                         baseClasses,
                                         isActive
-                                            ? "bg-linear-to-r from-[#003334] to-[#014849b8] text-white shadow-sm font-semibold"
-                                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                                            ? "bg-gradient-to-r from-zinc-800 to-zinc-900 text-zinc-100 border border-zinc-700/60 shadow-sm font-semibold"
+                                            : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200",
                                     ].join(" ")
                                 }
                             >
                                 {({ isActive }) => (
                                     <>
-                                        <span className="text-lg w-6 text-center" aria-hidden="true">
+                                        <span className={`text-lg w-6 text-center transition-colors ${isActive ? "text-emerald-400" : "text-zinc-500"}`} aria-hidden="true">
                                             {item.icon}
                                         </span>
                                         <span className="flex-1">{item.name}</span>
-                                        {isActive && <span className="text-xl leading-none">&rsaquo;</span>}
+                                        {isActive && <span className="text-xl leading-none text-zinc-400">&rsaquo;</span>}
                                     </>
                                 )}
                             </NavLink>
@@ -178,32 +178,32 @@ export const Sidebar = () => {
                     })}
                 </nav>
 
-                <div className="border-t border-slate-100 p-4">
-                    <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-2.5">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 text-teal-800 font-bold text-sm">
+                <div className="border-t border-zinc-800/80 p-4 bg-zinc-950">
+                    <div className="flex items-center gap-3 rounded-xl bg-zinc-900/90 border border-zinc-800 p-2.5 mb-2.5">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700 font-bold text-sm">
                             {user?.userName}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-bold text-slate-900">{displayName}</p>
-                            <p className="truncate text-xs text-slate-500">{profile?.email ?? user?.role.join(", ")}</p>
+                            <p className="truncate text-sm font-bold text-zinc-200">{displayName}</p>
+                            <p className="truncate text-xs text-zinc-500">{profile?.email ?? user?.role.join(", ")}</p>
                         </div>
                     </div>
                     <LogoutButton />
                 </div>
             </aside>
 
-            {/* Desktop Sidebar (>= 1024px) - Preserved exactly for desktop */}
-            <div className="hidden lg:flex min-h-screen bg-slate-100 shrink-0">
+            {/* Desktop Sidebar (>= 1024px) */}
+            <div className="hidden lg:flex min-h-screen bg-black shrink-0 border-r border-zinc-800/80">
                 <aside
                     className={`${
                         isDesktopOpen ? "lg:w-65" : "lg:w-20"
-                    } sticky top-0 left-0 z-30 flex h-screen flex-col bg-white px-3 py-8 shadow-[1px_0_15px_-8px_#00000066] transition-all duration-300 overflow-y-auto`}
+                    } sticky top-0 left-0 z-30 flex h-screen flex-col bg-zinc-950 px-3 py-6 shadow-2xl transition-all duration-300 overflow-y-auto no-scrollbar`}
                 >
-                    <div className={`mb-12 flex items-center ${displayLogo ? "justify-between" : "justify-center"}`}>
+                    <div className={`mb-8 flex items-center ${displayLogo ? "justify-between" : "justify-center"}`}>
                         {displayLogo && (
                             <NavLink to="/admin" className="flex items-center gap-3">
-                                <img src={logo} alt="Rock logo" className="w-15 rounded-[10px]" />
-                                <span className="text-2xl font-extrabold text-slate-800">Rock</span>
+                                <img src={logo} alt="Rock logo" className="w-10 h-10 rounded-xl object-cover border border-zinc-800 shadow-xs" />
+                                <span className="text-2xl font-black tracking-tight text-zinc-100">Rock</span>
                             </NavLink>
                         )}
 
@@ -211,25 +211,25 @@ export const Sidebar = () => {
                             <button
                                 type="button"
                                 onClick={openDesktopMenu}
-                                className={`rounded-lg p-2 text-slate-700 transition hover:bg-slate-100 inline-flex ${
+                                className={`rounded-xl p-2.5 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 border border-zinc-800/80 transition inline-flex ${
                                     isDesktopOpen ? "" : "justify-center"
                                 } cursor-pointer`}
                                 aria-label={isDesktopOpen ? "Collapse sidebar" : "Expand sidebar"}
                             >
-                                <i className={`fa-solid ${isDesktopOpen ? "fa-angle-left" : "fa-angle-right"} text-xl`} />
+                                <i className={`fa-solid ${isDesktopOpen ? "fa-angle-left" : "fa-angle-right"} text-lg`} />
                             </button>
                         </div>
                     </div>
 
-                    <nav className="flex flex-col gap-2">
+                    <nav className="flex flex-col gap-1.5">
                         {menuItems.map((item, index) => {
                             const baseClasses =
-                                "flex items-center gap-4 rounded-[10px] px-4 py-3.5 text-base transition-all duration-300";
+                                "flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm transition-all duration-200";
 
                             if (!item.link) {
                                 return (
-                                    <div key={index} className={`${baseClasses} text-slate-500`}>
-                                        <span className="text-xl">{item.icon}</span>
+                                    <div key={index} className={`${baseClasses} text-zinc-500`}>
+                                        <span className="text-lg w-6 text-center">{item.icon}</span>
                                         <span className="flex-1 font-medium">{item.name}</span>
                                     </div>
                                 );
@@ -244,20 +244,20 @@ export const Sidebar = () => {
                                         [
                                             baseClasses,
                                             isActive
-                                                ? "bg-linear-to-r from-[#003334] to-[#014849b8] text-white shadow-[0_4px_12px_rgba(79,209,197,0.3)]"
-                                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-800",
+                                                ? "bg-gradient-to-r from-zinc-800 to-zinc-900 text-zinc-100 border border-zinc-700/70 shadow-[0_2px_12px_rgba(0,0,0,0.5)] font-semibold"
+                                                : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200",
                                         ].join(" ")
                                     }
                                 >
                                     {({ isActive }) => (
                                         <>
-                                            <span className="text-xl" aria-hidden="true">
+                                            <span className={`text-lg w-6 text-center transition-colors ${isActive ? "text-emerald-400" : "text-zinc-500"}`} aria-hidden="true">
                                                 {item.icon}
                                             </span>
                                             {isDesktopOpen && (
                                                 <>
                                                     <span className="flex-1 font-medium">{item.name}</span>
-                                                    {isActive && <span className="text-2xl leading-none">&rsaquo;</span>}
+                                                    {isActive && <span className="text-xl leading-none text-zinc-400">&rsaquo;</span>}
                                                 </>
                                             )}
                                         </>
@@ -266,7 +266,8 @@ export const Sidebar = () => {
                             );
                         })}
                     </nav>
-                    <div className="mt-auto border-t border-slate-100 pt-3">
+
+                    <div className="mt-auto border-t border-zinc-800/80 pt-3">
                         <LogoutButton compact={!isDesktopOpen} />
                     </div>
                 </aside>

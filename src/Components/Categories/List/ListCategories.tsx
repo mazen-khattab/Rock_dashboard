@@ -1,17 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Edit,
-  Eye,
-  FolderTree,
-  Plus,
-  RefreshCw,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Edit, Eye, FolderTree, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCategory } from "../../../Context/CategoryContext";
 import type { Category } from "../../../Types/Category";
@@ -80,14 +68,12 @@ export const ListCategories = () => {
   };
 
   return (
-    <div className="min-h-screen p-3.5 sm:p-5 lg:p-6 text-slate-800">
+    <div className="min-h-screen bg-black p-3.5 sm:p-5 lg:p-6 text-zinc-200">
       {/* Page Header */}
       <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Categories</h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-500">
-            Manage your store's product categories and catalog structure.
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-100">Categories</h1>
+          <p className="mt-1 text-xs sm:text-sm text-zinc-400">Manage your store's product categories and catalog structure.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -95,7 +81,7 @@ export const ListCategories = () => {
             type="button"
             onClick={() => void getAllCategories().catch(() => {})}
             disabled={loading}
-            className="inline-flex h-9 sm:h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 sm:px-3.5 text-xs sm:text-sm font-medium text-slate-700 shadow-xs transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 sm:h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 sm:px-3.5 text-xs sm:text-sm font-medium text-zinc-300 shadow-xs transition hover:bg-zinc-850 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
             title="Refresh categories"
           >
             <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
@@ -104,7 +90,7 @@ export const ListCategories = () => {
 
           <Link
             to="create"
-            className="inline-flex h-9 sm:h-10 items-center justify-center gap-2 rounded-xl bg-(--main-color) px-3.5 sm:px-4 text-xs sm:text-sm font-medium text-white shadow-xs transition-colors hover:bg-(--hover-color)"
+            className="inline-flex h-9 sm:h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-sm px-3.5 sm:px-4 text-xs sm:text-sm transition"
           >
             <Plus size={16} />
             <span>New Category</span>
@@ -114,7 +100,7 @@ export const ListCategories = () => {
 
       {/* Error alert */}
       {error && (
-        <div className="mb-4 sm:mb-6 rounded-2xl border border-red-200 bg-red-50 p-3.5 sm:p-4 text-xs sm:text-sm text-red-700">
+        <div className="mb-4 sm:mb-6 rounded-2xl border border-rose-900/40 bg-zinc-900/90 p-3.5 sm:p-4 text-xs sm:text-sm text-rose-300">
           <div className="font-semibold">Unable to load categories from server</div>
           <p className="mt-1">{error}</p>
         </div>
@@ -123,10 +109,7 @@ export const ListCategories = () => {
       {/* Search and Filters */}
       <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div className="relative w-full sm:max-w-md">
-          <Search
-            size={17}
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-          />
+          <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             type="text"
             value={searchQuery}
@@ -135,20 +118,20 @@ export const ListCategories = () => {
               setCurrentPage(1);
             }}
             placeholder="Search categories by name or ID..."
-            className="w-full rounded-xl border border-slate-200 bg-white py-2 sm:py-2.5 pl-10 pr-4 text-xs sm:text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 py-2 sm:py-2.5 pl-10 pr-4 text-xs sm:text-sm text-zinc-200 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600 focus:bg-zinc-900 focus:ring-2 focus:ring-zinc-700"
           />
         </div>
 
-        <div className="flex items-center justify-between sm:justify-start gap-2 text-xs sm:text-sm text-slate-500">
+        <div className="flex items-center justify-between sm:justify-start gap-2 text-xs sm:text-sm text-zinc-400">
           <span>Total categories:</span>
-          <span className="font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">{categories.length}</span>
+          <span className="font-semibold text-zinc-200 bg-zinc-800 border border-zinc-700 px-2.5 py-0.5 rounded-lg">{categories.length}</span>
         </div>
       </div>
 
       {/* Categories Table */}
-      <div className="w-full overflow-x-auto rounded-xl sm:rounded-2xl border border-slate-200 bg-white shadow-xs">
+      <div className="w-full overflow-x-auto rounded-xl sm:rounded-2xl border border-zinc-800/80 bg-zinc-900/60 shadow-xl backdrop-blur-sm">
         <table className="min-w-[550px] w-full table-auto">
-          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold">
+          <thead className="border-b border-zinc-800 bg-zinc-950/80 text-zinc-400 text-xs sm:text-sm font-semibold">
             <tr>
               <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">ID</th>
               <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Category Name</th>
@@ -157,12 +140,12 @@ export const ListCategories = () => {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+          <tbody className="divide-y divide-zinc-800/60 text-xs sm:text-sm">
             {loading && categories.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center text-slate-500">
+                <td colSpan={4} className="py-12 text-center text-zinc-400">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <RefreshCw size={22} className="animate-spin text-teal-600" />
+                    <RefreshCw size={22} className="animate-spin text-zinc-300" />
                     <span className="text-sm">Loading categories...</span>
                   </div>
                 </td>
@@ -171,13 +154,13 @@ export const ListCategories = () => {
               <tr>
                 <td colSpan={4} className="py-12 sm:py-16 text-center px-4">
                   <div className="mx-auto flex max-w-sm flex-col items-center justify-center text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400">
                       <FolderTree size={22} />
                     </div>
-                    <h3 className="mt-3 text-base sm:text-lg font-semibold text-slate-900">
+                    <h3 className="mt-3 text-base sm:text-lg font-bold text-zinc-200">
                       {searchQuery ? "No matching categories" : "No categories yet"}
                     </h3>
-                    <p className="mt-1 text-xs sm:text-sm text-slate-500">
+                    <p className="mt-1 text-xs sm:text-sm text-zinc-400">
                       {searchQuery
                         ? "Try adjusting your search terms to find what you're looking for."
                         : "Get started by adding your first product category."}
@@ -185,7 +168,7 @@ export const ListCategories = () => {
                     {!searchQuery && (
                       <Link
                         to="create"
-                        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-(--main-color) px-4 py-2 text-xs sm:text-sm font-medium text-white transition hover:bg-(--hover-color)"
+                        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-2 text-xs sm:text-sm font-semibold text-zinc-200 transition hover:bg-zinc-750 hover:text-zinc-100"
                       >
                         <Plus size={16} />
                         <span>Add Category</span>
@@ -210,17 +193,15 @@ export const ListCategories = () => {
                         handleRowClick(category.id);
                       }
                     }}
-                    className="cursor-pointer transition-colors hover:bg-slate-50/80 focus:bg-slate-50 focus:outline-none"
+                    className="cursor-pointer transition-colors hover:bg-zinc-850/50 focus:bg-zinc-850/70 focus:outline-none"
                   >
                     {/* ID */}
-                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap font-mono text-xs sm:text-sm text-slate-500">
-                      #{category.id}
-                    </td>
+                    <td className="px-3.5 sm:px-5 py-3.5 whitespace-nowrap font-mono text-xs sm:text-sm text-zinc-500">#{category.id}</td>
 
                     {/* Category Name */}
-                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap font-semibold text-slate-900">
+                    <td className="px-3.5 sm:px-5 py-3.5 whitespace-nowrap font-semibold text-zinc-200">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
                           <FolderTree size={16} />
                         </div>
                         <span>{category.name}</span>
@@ -228,17 +209,17 @@ export const ListCategories = () => {
                     </td>
 
                     {/* Status */}
-                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap">
+                    <td className="px-3.5 sm:px-5 py-3.5 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                           isActive
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                            : "border-amber-200 bg-amber-50 text-amber-700"
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                            : "border-zinc-700 bg-zinc-800 text-zinc-400"
                         }`}
                       >
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${
-                            isActive ? "bg-emerald-500" : "bg-amber-500"
+                            isActive ? "bg-emerald-400" : "bg-zinc-500"
                           }`}
                         />
                         {isActive ? "Active" : "Inactive"}
@@ -246,16 +227,13 @@ export const ListCategories = () => {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap text-right">
-                      <div
-                        className="inline-flex items-center gap-1.5 sm:gap-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                    <td className="px-3.5 sm:px-5 py-3.5 whitespace-nowrap text-right">
+                      <div className="inline-flex items-center gap-1.5 sm:gap-2" onClick={(e) => e.stopPropagation()}>
                         {/* View Details */}
                         <Link
                           to={`show/${category.id}`}
                           state={{ category }}
-                          className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                          className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                           title="View Category"
                         >
                           <Eye size={15} />
@@ -265,7 +243,7 @@ export const ListCategories = () => {
                         <Link
                           to={`edit/${category.id}`}
                           state={{ category }}
-                          className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                          className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-amber-400"
                           title="Edit Category"
                         >
                           <Edit size={15} />
@@ -275,7 +253,7 @@ export const ListCategories = () => {
                         <button
                           type="button"
                           onClick={() => setCategoryToDelete(category)}
-                          className="cursor-pointer rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100"
+                          className="cursor-pointer rounded-lg border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-400 transition-colors hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400"
                           title="Delete Category"
                         >
                           <Trash2 size={15} />
@@ -292,21 +270,20 @@ export const ListCategories = () => {
 
       {/* Pagination controls */}
       <div className="mt-4 sm:mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xs sm:text-sm text-slate-500">
-          Showing {filteredCategories.length === 0 ? 0 : from + 1} to{" "}
-          {Math.min(from + rowsPerPage, filteredCategories.length)} of {totalRows} row(s)
+        <div className="text-xs sm:text-sm text-zinc-400">
+          Showing {filteredCategories.length === 0 ? 0 : from + 1} to {Math.min(from + rowsPerPage, filteredCategories.length)} of {totalRows} row(s)
         </div>
 
         <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-6 text-xs sm:text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-slate-500">Rows:</span>
+            <span className="text-zinc-400">Rows:</span>
             <select
               value={rowsPerPage}
               onChange={(e) => {
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-700 outline-none focus:border-teal-500"
+              className="rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-300 outline-none focus:border-zinc-600"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -316,7 +293,7 @@ export const ListCategories = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm font-medium text-slate-600">
+            <span className="text-xs sm:text-sm font-medium text-zinc-400">
               Page {currentPage} of {totalPages || 1}
             </span>
             <div className="flex gap-1">
@@ -324,7 +301,7 @@ export const ListCategories = () => {
                 type="button"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 disabled:cursor-not-allowed disabled:opacity-30"
                 title="First Page"
               >
                 <ChevronsLeft size={15} />
@@ -333,7 +310,7 @@ export const ListCategories = () => {
                 type="button"
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 disabled:cursor-not-allowed disabled:opacity-30"
                 title="Previous Page"
               >
                 <ChevronLeft size={15} />
@@ -342,7 +319,7 @@ export const ListCategories = () => {
                 type="button"
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage >= totalPages}
-                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 disabled:cursor-not-allowed disabled:opacity-30"
                 title="Next Page"
               >
                 <ChevronRight size={15} />
@@ -351,7 +328,7 @@ export const ListCategories = () => {
                 type="button"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage >= totalPages}
-                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 disabled:cursor-not-allowed disabled:opacity-30"
                 title="Last Page"
               >
                 <ChevronsRight size={15} />

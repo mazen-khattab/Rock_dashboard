@@ -220,18 +220,18 @@ export const MOCK_ORDERS: Order[] = [
 ];
 
 export const orderStatusClassName: Record<string, string> = {
-  Pending: "border-amber-200 bg-amber-50 text-amber-700",
-  Processing: "border-sky-200 bg-sky-50 text-sky-700",
-  Confirmed: "border-indigo-200 bg-indigo-50 text-indigo-700",
-  Shipped: "border-purple-200 bg-purple-50 text-purple-700",
-  Delivered: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  Cancelled: "border-rose-200 bg-rose-50 text-rose-700",
-  Returned: "border-orange-200 bg-orange-50 text-orange-700",
+  Pending: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+  Processing: "border-sky-500/30 bg-sky-500/10 text-sky-400",
+  Confirmed: "border-blue-500/30 bg-blue-500/10 text-blue-400",
+  Shipped: "border-indigo-500/30 bg-indigo-500/10 text-indigo-400",
+  Delivered: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+  Cancelled: "border-rose-500/30 bg-rose-500/10 text-rose-400",
+  Returned: "border-orange-500/30 bg-orange-500/10 text-orange-400",
 };
 
 export const getOrderStatusBadge = (status: string) => {
   return (
     orderStatusClassName[status] ||
-    "border-slate-200 bg-slate-50 text-slate-700"
+    "border-zinc-700 bg-zinc-800 text-zinc-300"
   );
 };

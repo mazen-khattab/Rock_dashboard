@@ -80,31 +80,31 @@ export const ListSizes = () => {
   };
 
   return (
-    <div className="min-h-screen rounded-3xl p-3.5 sm:p-5 lg:p-6 text-slate-800 shadow-sm">
+    <div className="min-h-screen bg-black p-3.5 sm:p-5 lg:p-6 text-zinc-200">
       {/* Page Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Sizes</h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-500">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100">Sizes</h1>
+          <p className="mt-1 text-xs sm:text-sm text-zinc-400">
             Manage product size variants, sort order, and catalog availability.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => void getAllSizes().catch(() => {})}
             disabled={loading}
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 sm:h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 sm:px-3.5 text-xs sm:text-sm font-medium text-zinc-300 shadow-xs transition hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
             title="Refresh sizes"
           >
-            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
 
           <Link
             to="create"
-            className="inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white transition-colors hover:bg-(--hover-color)"
+            className="inline-flex h-9 sm:h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 sm:px-4 text-xs sm:text-sm font-semibold shadow-sm transition"
           >
             <Plus size={16} />
             <span>New Size</span>
@@ -114,18 +114,18 @@ export const ListSizes = () => {
 
       {/* Error alert */}
       {error && (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-4 sm:mb-6 rounded-2xl border border-rose-900/40 bg-zinc-900/90 p-3.5 sm:p-4 text-xs sm:text-sm text-rose-300">
           <div className="font-semibold">Unable to load sizes from server</div>
           <p className="mt-1">{error}</p>
         </div>
       )}
 
       {/* Search and Filters */}
-      <div className="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-        <div className="relative flex-1 max-w-md w-full">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="relative w-full sm:max-w-md">
           <Search
-            size={18}
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            size={17}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
           />
           <input
             type="text"
@@ -135,48 +135,51 @@ export const ListSizes = () => {
               setCurrentPage(1);
             }}
             placeholder="Search sizes by name, sort order, or ID..."
-            className="w-full rounded-xl border border-slate-200 bg-white py-2 sm:py-2.5 pl-10 pr-4 text-xs sm:text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 py-2 sm:py-2.5 pl-10 pr-4 text-xs sm:text-sm text-zinc-200 outline-none transition placeholder:text-zinc-500 focus:border-zinc-600 focus:bg-zinc-900 focus:ring-2 focus:ring-zinc-700"
           />
         </div>
 
-        <div className="text-xs sm:text-sm text-slate-500">
-          Total: <span className="font-semibold text-slate-800">{sizes.length}</span>
+        <div className="flex items-center justify-between sm:justify-start gap-2 text-xs sm:text-sm text-zinc-400">
+          <span>Total sizes:</span>
+          <span className="font-semibold text-zinc-200 bg-zinc-800 border border-zinc-700 px-2.5 py-0.5 rounded-lg">
+            {sizes.length}
+          </span>
         </div>
       </div>
 
       {/* Sizes Table */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
+      <div className="w-full overflow-x-auto rounded-xl sm:rounded-2xl border border-zinc-800/80 bg-zinc-900/60 shadow-xl backdrop-blur-sm">
         <table className="w-full min-w-[550px] table-auto">
-          <thead className="border-b border-slate-200 bg-slate-50 text-slate-700 text-xs sm:text-sm">
+          <thead className="border-b border-zinc-800 bg-zinc-950/80 text-zinc-400 text-xs sm:text-sm font-semibold">
             <tr>
-              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left font-medium whitespace-nowrap">Size Name</th>
-              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left font-medium whitespace-nowrap">Sort Order</th>
-              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left font-medium whitespace-nowrap">Status</th>
-              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-right font-medium whitespace-nowrap">Actions</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Size Name</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Sort Order</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-left whitespace-nowrap">Status</th>
+              <th className="px-3.5 sm:px-5 py-3 sm:py-3.5 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+          <tbody className="divide-y divide-zinc-800/60 text-xs sm:text-sm">
             {loading && sizes.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center text-slate-500">
+                <td colSpan={4} className="py-12 text-center text-zinc-400">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <RefreshCw size={24} className="animate-spin text-teal-600" />
-                    <span>Loading sizes...</span>
+                    <RefreshCw size={22} className="animate-spin text-zinc-300" />
+                    <span className="text-sm">Loading sizes...</span>
                   </div>
                 </td>
               </tr>
             ) : currentSizes.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-16 text-center">
+                <td colSpan={4} className="py-12 sm:py-16 text-center px-4">
                   <div className="mx-auto flex max-w-sm flex-col items-center justify-center text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
-                      <Ruler size={24} />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400">
+                      <Ruler size={22} />
                     </div>
-                    <h3 className="mt-4 text-base sm:text-lg font-semibold text-slate-900">
+                    <h3 className="mt-3 text-base sm:text-lg font-bold text-zinc-200">
                       {searchQuery ? "No matching sizes" : "No sizes yet"}
                     </h3>
-                    <p className="mt-1 text-xs sm:text-sm text-slate-500">
+                    <p className="mt-1 text-xs sm:text-sm text-zinc-400">
                       {searchQuery
                         ? "Try adjusting your search terms to find what you're looking for."
                         : "Get started by adding your first product size."}
@@ -184,7 +187,7 @@ export const ListSizes = () => {
                     {!searchQuery && (
                       <Link
                         to="create"
-                        className="mt-5 inline-flex items-center gap-2 rounded-lg bg-(--main-color) px-4 py-2 text-sm font-medium text-white transition hover:bg-(--hover-color)"
+                        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-zinc-800 border border-zinc-700 px-4 py-2 text-xs sm:text-sm font-semibold text-zinc-200 transition hover:bg-zinc-750 hover:text-zinc-100"
                       >
                         <Plus size={16} />
                         <span>Add Size</span>
@@ -209,35 +212,37 @@ export const ListSizes = () => {
                         handleRowClick(size.id);
                       }
                     }}
-                    className="cursor-pointer transition-colors hover:bg-slate-50/80 focus:bg-slate-50 focus:outline-none"
+                    className="cursor-pointer transition-colors hover:bg-zinc-850/50 focus:bg-zinc-850/70 focus:outline-none"
                   >
                     {/* Size Pill & Name */}
-                    <td className="px-3.5 sm:px-5 py-3 sm:py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2.5 sm:gap-3">
-                        <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 font-bold text-slate-800 text-xs sm:text-sm">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-800/80 border border-zinc-700/60 font-bold text-zinc-300 text-xs sm:text-sm">
                           {size.name}
                         </div>
-                        <span className="font-semibold text-slate-900">{size.name}</span>
+                        <span className="font-semibold text-zinc-100">{size.name}</span>
                       </div>
                     </td>
 
                     {/* Sort Order */}
-                    <td className="px-3.5 sm:px-5 py-3 sm:py-4 whitespace-nowrap font-mono text-xs sm:text-sm text-slate-700">
-                      #{size.sortOrder}
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap font-mono text-xs sm:text-sm text-zinc-300">
+                      <span className="bg-zinc-800/80 border border-zinc-750 px-2 py-0.5 rounded-md text-zinc-300">
+                        #{size.sortOrder}
+                      </span>
                     </td>
 
                     {/* Status */}
-                    <td className="px-3.5 sm:px-5 py-3 sm:py-4 whitespace-nowrap">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-0.5 sm:py-1 text-xs font-medium ${
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                           isActive
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                            : "border-amber-200 bg-amber-50 text-amber-700"
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                            : "border-zinc-700 bg-zinc-800 text-zinc-400"
                         }`}
                       >
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${
-                            isActive ? "bg-emerald-500" : "bg-amber-500"
+                            isActive ? "bg-emerald-400" : "bg-zinc-500"
                           }`}
                         />
                         {isActive ? "Active" : "Inactive"}
@@ -245,7 +250,7 @@ export const ListSizes = () => {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-3.5 sm:px-5 py-3 sm:py-4 whitespace-nowrap text-right">
+                    <td className="px-3.5 sm:px-5 py-3 whitespace-nowrap text-right">
                       <div
                         className="inline-flex items-center gap-1.5 sm:gap-2"
                         onClick={(e) => e.stopPropagation()}
@@ -254,7 +259,7 @@ export const ListSizes = () => {
                         <Link
                           to={`show/${size.id}`}
                           state={{ size }}
-                          className="rounded-lg bg-slate-100 p-1.5 sm:p-2 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                          className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                           title="View Details"
                         >
                           <Eye size={15} />
@@ -264,7 +269,7 @@ export const ListSizes = () => {
                         <Link
                           to={`edit/${size.id}`}
                           state={{ size }}
-                          className="rounded-lg bg-slate-100 p-1.5 sm:p-2 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+                          className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-amber-400"
                           title="Edit Size"
                         >
                           <Edit size={15} />
@@ -274,7 +279,7 @@ export const ListSizes = () => {
                         <button
                           type="button"
                           onClick={() => setSizeToDelete(size)}
-                          className="cursor-pointer rounded-lg bg-red-50 p-1.5 sm:p-2 text-red-600 transition-colors hover:bg-red-100"
+                          className="cursor-pointer rounded-lg border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-400 transition-colors hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400"
                           title="Delete Size"
                         >
                           <Trash2 size={15} />
@@ -291,21 +296,21 @@ export const ListSizes = () => {
 
       {/* Pagination controls */}
       <div className="mt-4 sm:mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xs sm:text-sm text-slate-500">
+        <div className="text-xs sm:text-sm text-zinc-400">
           Showing {filteredSizes.length === 0 ? 0 : from + 1} to{" "}
           {Math.min(from + rowsPerPage, filteredSizes.length)} of {totalRows} row(s)
         </div>
 
         <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-6 text-xs sm:text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-slate-600">Rows:</span>
+            <span className="text-zinc-400">Rows:</span>
             <select
               value={rowsPerPage}
               onChange={(e) => {
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-700 outline-none focus:border-teal-500 text-xs sm:text-sm"
+              className="rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-200 outline-none focus:border-zinc-500"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -314,8 +319,8 @@ export const ListSizes = () => {
             </select>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-slate-600 text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-xs sm:text-sm font-medium text-zinc-400">
               Page {currentPage} of {totalPages || 1}
             </span>
             <div className="flex gap-1">
@@ -323,37 +328,37 @@ export const ListSizes = () => {
                 type="button"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
                 title="First Page"
               >
-                <ChevronsLeft size={16} />
+                <ChevronsLeft size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
                 title="Previous Page"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage >= totalPages}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
                 title="Next Page"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage >= totalPages}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-8 w-8 sm:h-9 sm:w-9 inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
                 title="Last Page"
               >
-                <ChevronsRight size={16} />
+                <ChevronsRight size={15} />
               </button>
             </div>
           </div>
